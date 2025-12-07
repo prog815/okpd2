@@ -75,7 +75,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const resultsHtml = displayResults.map(item => `
             <div class="result-item">
-                <div class="result-code">${highlightMatch(item.code, query)}</div>
+                <div class="result-code-container">
+                    <span class="result-code">${highlightMatch(item.code, query)}</span>
+                    <button class="copy-btn" data-code="${item.code}" title="Копировать код">
+                        📋
+                    </button>
+                </div>
                 <div class="result-name">${highlightMatch(item.name, query)}</div>
             </div>
         `).join('');
@@ -97,7 +102,12 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('showAllBtn').addEventListener('click', function() {
                 const allResultsHtml = sortedResults.map(item => `
                     <div class="result-item">
-                        <div class="result-code">${highlightMatch(item.code, query)}</div>
+                        <div class="result-code-container">
+                            <span class="result-code">${highlightMatch(item.code, query)}</span>
+                            <button class="copy-btn" data-code="${item.code}" title="Копировать код">
+                                📋
+                            </button>
+                        </div>
                         <div class="result-name">${highlightMatch(item.name, query)}</div>
                     </div>
                 `).join('');
@@ -202,4 +212,82 @@ document.addEventListener('DOMContentLoaded', function() {
             displayResults(results, query);
         }
     });
+
+
+    // Функция копирования кода в буфер обмена
+    function setupCopyButtons() {
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.copy-btn')) {
+                const copyBtn = e.target.closest('.copy-btn');
+                const codeToCopy = copyBtn.getAttribute('data-code');
+                
+                copyToClipboard(codeToCopy, copyBtn);
+            }
+        });
+    }
+    
+    // Основная функция копирования
+    function copyToClipboard(text, button) {
+        // Сохраняем оригинальный текст кнопки
+        const originalHtml = button.innerHTML;
+        
+        // Пробуем использовать современный Clipboard API
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    showCopyFeedback(button, '✅');
+                    setTimeout(() => {
+                        button.innerHTML = originalHtml;
+                    }, 1500);
+                })
+                .catch(err => {
+                    console.error('Ошибка копирования:', err);
+                    fallbackCopy(text, button, originalHtml);
+                });
+        } else {
+            // Fallback для старых браузеров
+            fallbackCopy(text, button, originalHtml);
+        }
+    }
+    
+    // Fallback метод копирования
+    function fallbackCopy(text, button, originalHtml) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            const successful = document.execCommand('copy');
+            if (successful) {
+                showCopyFeedback(button, '✅');
+            } else {
+                showCopyFeedback(button, '❌');
+            }
+        } catch (err) {
+            console.error('Ошибка fallback копирования:', err);
+            showCopyFeedback(button, '❌');
+        } finally {
+            document.body.removeChild(textArea);
+            setTimeout(() => {
+                button.innerHTML = originalHtml;
+            }, 1500);
+        }
+    }
+    
+    // Показ обратной связи
+    function showCopyFeedback(button, icon) {
+        button.innerHTML = icon;
+        button.classList.add('copied');
+        setTimeout(() => {
+            button.classList.remove('copied');
+        }, 1500);
+    }
+    
+    // Инициализация кнопок копирования
+    setupCopyButtons();
 });
