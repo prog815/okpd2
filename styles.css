@@ -235,3 +235,49 @@ footer {
         padding: 3px 6px;
     }
 }
+
+/* Общие стили для ссылок на источники */
+.source-link {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9em;
+    padding: 4px 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f8f9fa;
+    margin-left: 5px;
+    transition: all 0.2s;
+    line-height: 1;
+}
+
+.source-link:hover {
+    transform: translateY(-1px);
+}
+
+/* КонсультантПлюс (синий) */
+.consultant-link:hover {
+    background: #1e88e5;
+    color: white;
+    border-color: #1e88e5;
+}
+
+/* Стили для ссылки на ГАРАНТ (фиолетовый) */
+.garant-link:hover {
+    background: #6a1b9a; /* или другой, подходящий вам цвет */
+    color: white;
+    border-color: #6a1b9a;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 600px) {
+    .result-code-container {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .source-link {
+        font-size: 0.8em;
+        padding: 3px 5px;
+        margin-left: 0;
+    }
+}

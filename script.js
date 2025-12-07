@@ -77,9 +77,29 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="result-item">
                 <div class="result-code-container">
                     <span class="result-code">${highlightMatch(item.code, query)}</span>
+                    
+                    <!-- Кнопка копирования -->
                     <button class="copy-btn" data-code="${item.code}" title="Копировать код">
                         📋
                     </button>
+                    
+                    <!-- Ссылка на КонсультантПлюс -->
+                    <a href="https://www.consultant.ru/search/?q=окпд2+${item.code}" 
+                    class="source-link consultant-link" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    title="Найти в КонсультантПлюс">
+                        ⚖️
+                    </a>
+                    
+                    <!-- ИСПРАВЛЕННАЯ ссылка на ГАРАНТ -->
+                    <a href="https://ivo.garant.ru/#/basesearch/окпд2%20${item.code}" 
+                    class="source-link garant-link" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    title="Найти в системе ГАРАНТ">
+                        🏛️
+                    </a>
                 </div>
                 <div class="result-name">${highlightMatch(item.name, query)}</div>
             </div>
@@ -100,24 +120,59 @@ document.addEventListener('DOMContentLoaded', function() {
         // Добавляем обработчик кнопки "Показать все"
         if (results.length > 50) {
             document.getElementById('showAllBtn').addEventListener('click', function() {
+                // Генерируем HTML для ВСЕХ результатов с ссылками
                 const allResultsHtml = sortedResults.map(item => `
                     <div class="result-item">
                         <div class="result-code-container">
                             <span class="result-code">${highlightMatch(item.code, query)}</span>
+                            
+                            <!-- Кнопка копирования -->
                             <button class="copy-btn" data-code="${item.code}" title="Копировать код">
                                 📋
                             </button>
+                            
+                            <!-- Ссылка на КонсультантПлюс -->
+                            <a href="https://www.consultant.ru/search/?q=окпд2+${item.code}" 
+                            class="source-link consultant-link" 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            title="Найти в КонсультантПлюс">
+                                ⚖️
+                            </a>
+                            
+                            <!-- Ссылка на ГАРАНТ -->
+                            <a href="https://ivo.garant.ru/#/basesearch/окпд2%20${item.code}" 
+                            class="source-link garant-link" 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            title="Найти в системе ГАРАНТ">
+                                🏛️
+                            </a>
                         </div>
                         <div class="result-name">${highlightMatch(item.name, query)}</div>
                     </div>
                 `).join('');
                 
+                // Обновляем контейнер с результатами
                 resultsContainer.innerHTML = `
                     <div class="results-count">
                         По запросу "<strong>${query}</strong>" найдено: <strong>${results.length}</strong> записей
                     </div>
                     ${allResultsHtml}
                 `;
+                
+                // ВАЖНО: После обновления DOM нужно ПЕРЕПРИВЯЗАТЬ обработчики копирования
+                // Функция setupCopyButtons() должна быть доступна в области видимости
+                // Если её нет, используйте этот код:
+                document.querySelectorAll('.copy-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        const codeToCopy = this.getAttribute('data-code');
+                        // Ваша функция copyToClipboard должна быть доступна
+                        if (typeof copyToClipboard === 'function') {
+                            copyToClipboard(codeToCopy, this);
+                        }
+                    });
+                });
             });
         }
     }
