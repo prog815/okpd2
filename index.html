@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Справочник ОКПД2</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Библиотека для быстрого поиска (подключите, когда будете готовы) -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/minisearch@6.0.0/dist/umd/index.min.js"></script> -->
 </head>
 <body>
     <header>
@@ -15,7 +13,7 @@
     </header>
 
     <main>
-        <!-- Поле для поиска -->
+        <!-- ЕДИНСТВЕННОЕ поле для поиска с автодополнением -->
         <div class="search-container">
             <input
                 type="text"
@@ -38,9 +36,10 @@
         <p>Данные актуальны на <span id="currentDate"></span>. Используется классификатор ОКПД2.</p>
     </footer>
 
-    <!-- Подключение JavaScript файлов -->
-    <script src="data.js"></script> <!-- Файл с данными справочника -->
-    <script src="script.js"></script> <!-- Файл с логикой поиска -->
+    <!-- ПРАВИЛЬНЫЙ ПОРЯДОК ПОДКЛЮЧЕНИЯ СКРИПТОВ -->
+    <script src="data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/minisearch@6.3.0/dist/umd/index.min.js"></script>
+    <script src="script.js"></script>
 
     <script>
         // Простой скрипт для отображения текущей даты в футере
