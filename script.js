@@ -52,11 +52,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Функция отображения результатов
     function displayResults(results, query) {
-        if (!query || query.length < 2) {
-            resultsContainer.innerHTML = '<div class="initial-message">Введите 2 или более символов для поиска</div>';
-            return;
+        const resultsContainer = document.getElementById('resultsContainer');
+        
+        // Показываем контейнер с результатами ТОЛЬКО если есть запрос и результаты
+        if ((!query || query.length < 2) && results.length === 0) {
+            // Если запроса нет или он слишком короткий, и результатов нет - скрываем контейнер
+            resultsContainer.style.display = 'none';
+            return; // Выходим из функции, ничего не отображаем
         }
         
+        // Если дошли сюда - показываем контейнер
+        resultsContainer.style.display = 'block';
+        
+        // Продолжаем стандартную логику отображения результатов...
         if (results.length === 0) {
             resultsContainer.innerHTML = `
                 <div class="no-results">
