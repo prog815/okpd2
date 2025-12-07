@@ -123,13 +123,6 @@ h1 {
     margin-bottom: 3px;
 }
 
-.result-section {
-    font-size: 0.8em;
-    color: #888;
-    margin-top: 4px;
-    font-style: italic;
-}
-
 /* Стили для пагинации/показа всех результатов */
 .more-results {
     text-align: center;

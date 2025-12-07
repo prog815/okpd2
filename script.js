@@ -77,7 +77,6 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="result-item">
                 <div class="result-code">${highlightMatch(item.code, query)}</div>
                 <div class="result-name">${highlightMatch(item.name, query)}</div>
-                ${item.section ? `<div class="result-section">Раздел: ${item.section}</div>` : ''}
             </div>
         `).join('');
         
@@ -100,7 +99,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="result-item">
                         <div class="result-code">${highlightMatch(item.code, query)}</div>
                         <div class="result-name">${highlightMatch(item.name, query)}</div>
-                        ${item.section ? `<div class="result-section">Раздел: ${item.section}</div>` : ''}
                     </div>
                 `).join('');
                 
