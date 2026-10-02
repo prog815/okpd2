@@ -4,52 +4,661 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Справочник ОКПД2 — бесплатный онлайн-поиск кодов классификатора</title>
-    <meta name="description" content="Быстрый и удобный поиск по ОКПД2 (ОК 034-2014). Находите коды и названия продукции для госзакупок, статистики, бухгалтерии. Полная база: 20 307 записей.">
-    <meta name="keywords" content="ОКПД2, классификатор продукции, коды ОКПД2, поиск ОКПД2, ОК 034-2014, госзакупки, статистика">
-    <link rel="stylesheet" href="styles.css">
+    <meta name="description" content="Быстрый и удобный поиск по ОКПД2 (ОК 034-2014). Находите коды и названия продукции для госзакупок (44-ФЗ, 223-ФЗ), статистики и бухгалтерии. Актуальная база.">
+    <meta name="keywords" content="ОКПД2, классификатор продукции, коды ОКПД2, поиск ОКПД2, ОК 034-2014, госзакупки, статистика, коды нижнего уровня">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --success-bg: #ecfdf5;
+            --highlight: #fef08a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; width: 100%; }
+
+        /* Header */
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 30px 0 20px;
+        }
+
+        h1 { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+
+        .header-desc {
+            color: var(--text-muted);
+            font-size: 15px;
+            max-width: 700px;
+            margin-bottom: 20px;
+        }
+        .header-desc a { color: var(--primary); text-decoration: none; }
+        .header-desc a:hover { text-decoration: underline; }
+
+        /* Info Cards */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .info-card {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .info-card.leaf-card { border-left-color: var(--success); }
+
+        .info-card-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .info-card-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .info-card-note {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Main Content */
+        main { flex: 1; }
+
+        /* Search */
+        .search-container {
+            background: var(--surface);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin: 30px 0;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        #searchInput {
+            flex: 1;
+            min-width: 280px;
+            padding: 14px 18px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        #searchInput:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .filter-group:hover { background: #f1f5f9; }
+
+        #leafFilter {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--success);
+        }
+
+        .filter-group label {
+            font-size: 14px;
+            color: var(--text);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .hint {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+
+        /* Results */
+        .results-info {
+            background: #eff6ff;
+            color: #1e40af;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .results-container {
+            background: var(--surface);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            overflow: hidden;
+            min-height: 200px;
+        }
+
+        .result-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            transition: background 0.15s;
+        }
+
+        .result-item:hover { background: #f8fafc; }
+        .result-item:last-child { border-bottom: none; }
+
+        .code-block {
+            flex-shrink: 0;
+            min-width: 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .code {
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 6px 10px;
+            background: #eff6ff;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            width: fit-content;
+        }
+
+        .code:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .code.copied {
+            background: var(--success);
+            color: white;
+        }
+
+        .badge-bottom-level {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--success-bg);
+            color: #065f46;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            width: fit-content;
+            border: 1px solid #a7f3d0;
+        }
+
+        .name-block { flex: 1; }
+
+        .name {
+            font-size: 15px;
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .highlight {
+            background: var(--highlight);
+            padding: 0 2px;
+            border-radius: 2px;
+            font-weight: 600;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            padding: 25px;
+            background: var(--surface);
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            background: var(--surface);
+            color: var(--text);
+            transition: all 0.2s;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* States */
+        .loading, .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state h3 { font-size: 18px; color: var(--text); margin-bottom: 8px; }
+        .error-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #dc2626;
+            background: #fef2f2;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        /* Footer & Menu */
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--text-muted);
+            font-size: 13px;
+            border-top: 1px solid var(--border);
+            margin-top: auto;
+        }
+        footer a { color: var(--primary); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        .menu-wrapper {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 20px 0;
+        }
+
+        @media (max-width: 640px) {
+            .search-row { flex-direction: column; align-items: stretch; }
+            #searchInput { min-width: 100%; }
+            .result-item { flex-direction: column; gap: 10px; }
+            .code-block { min-width: 100%; }
+        }
+    </style>
 </head>
 <body>
     <header>
-        <h1>📁 Интерактивный справочник ОКПД2</h1>
-        <div class="header-description">
-            <p><strong>Общероссийский классификатор продукции по видам экономической деятельности (ОК 034-2014)</strong></p>
-            <p>Используется для государственных закупок (44-ФЗ, 223-ФЗ), статистики, налогообложения и стандартизации. Заменил классификаторы ОКП, ОКДП и ОКУН. Основан на европейской классификации КПЕС 2008. <a href="https://ru.ruwiki.ru/wiki/Общероссийский_классификатор_продукции" target="_blank" rel="noopener noreferrer">Подробнее в РуВики</a>.</p>
-            <p class="header-note">В справочнике актуальная база из 20 307 записей. Данные обновляются с <a href="https://rosstat.gov.ru/classification" target="_blank" rel="noopener noreferrer">официального сайта Росстата</a>.</p>
+        <div class="container">
+            <h1>📁 Интерактивный справочник ОКПД2</h1>
+            <div class="header-desc">
+                <p>Общероссийский классификатор продукции по видам экономической деятельности (ОК 034-2014). Используется для государственных закупок (44-ФЗ, 223-ФЗ), статистики, налогообложения и стандартизации.</p>
+            </div>
+            
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="info-card-title">Всего записей</div>
+                    <div class="info-card-value" id="recordsCount">загрузка...</div>
+                    <div class="info-card-note">Полная база классификатора</div>
+                </div>
+                <div class="info-card leaf-card">
+                    <div class="info-card-title">Коды нижнего уровня</div>
+                    <div class="info-card-value" id="leafCount">загрузка...</div>
+                    <div class="info-card-note">Именно эти коды указываются в извещениях о закупках</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">Дата актуальности</div>
+                    <div class="info-card-value" id="sourceDate">загрузка...</div>
+                    <div class="info-card-note">Источник: <a href="https://rosstat.gov.ru/classification" target="_blank">Росстат</a></div>
+                </div>
+            </div>
         </div>
     </header>
 
-    <main>
-        <!-- Поле для поиска -->
+    <main class="container">
         <div class="search-container">
-            <input
-                type="text"
-                id="searchInput"
-                placeholder="Введите код (01.11.1) или название (Пшеница)..."
-                aria-label="Поле для поиска по справочнику ОКПД2"
-            >
-            <div class="hint">
-                Поиск запустится автоматически при вводе.
+            <div class="search-row">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Введите код (01.11.1) или название (Пшеница)..."
+                    aria-label="Поле для поиска по справочнику ОКПД2"
+                    autocomplete="off"
+                >
+                <div class="filter-group" title="Оставить только коды, которые можно указывать в закупочной документации">
+                    <input type="checkbox" id="leafFilter">
+                    <label for="leafFilter">Только коды нижнего уровня</label>
+                </div>
+            </div>
+            <div class="hint">Поиск запустится автоматически при вводе. Поддерживается поиск по нескольким словам.</div>
+        </div>
+
+        <div class="results-info" id="resultsInfo" style="display: none;">
+            Найдено: <strong id="foundCount">0</strong> результатов <span id="showingRange"></span>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+            <div class="loading" id="loadingState">
+                Загрузка данных из okpd2.json.gz...
             </div>
         </div>
 
-        <!-- Контейнер для результатов - ПУСТОЙ по умолчанию, появляется только при поиске -->
-        <div id="resultsContainer" class="results-container">
-            <!-- Контент добавляется динамически скриптом script.js -->
+        <div class="pagination" id="pagination" style="display: none;">
+            <button class="btn" id="prevBtn" disabled>← Назад</button>
+            <span id="pageInfo" style="font-size: 14px; color: var(--text-muted);">Страница 1</span>
+            <button class="btn" id="nextBtn" disabled>Вперёд →</button>
+            <button class="btn btn-primary" id="showAllBtn">Показать все</button>
         </div>
     </main>
 
     <footer>
-        <p>
-            Данные актуальны на <strong>05.12.2025</strong>. Проект с открытым исходным кодом на <a href="https://github.com/prog815/okpd2" target="_blank" rel="noopener noreferrer">GitHub</a>.
-        </p>
+        <div class="container">
+            <p>Проект с открытым исходным кодом на <a href="https://github.com/prog815/okpd2" target="_blank">GitHub</a>.</p>
+        </div>
     </footer>
 
-    <!-- Подключение JavaScript файлов -->
-    <script src="data.js"></script>
-    <script src="script.js"></script>
+    <!-- Навигационное меню для перехода между проектами -->
+    <div class="menu-wrapper">
+        <div class="container">
+            <script src="https://prog815.github.io/common-menu/menu.js"></script>
+            <common-projects-menu></common-projects-menu>
+        </div>
+    </div>
 
+    <script>
+        let allData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        const itemsPerPage = 50;
+        let showAll = false;
 
-    <script src="https://prog815.github.io/common-menu/menu.js"></script>
-    <common-projects-menu></common-projects-menu>
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadData();
+            setupEventListeners();
+        });
+
+        // Загрузка данных с поддержкой gzip
+        async function loadData() {
+            const container = document.getElementById('resultsContainer');
+            
+            try {
+                let data;
+                try {
+                    // Пробуем загрузить сжатый файл (рекомендуется, ~341 KB)
+                    const response = await fetch('okpd2.json.gz');
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    
+                    const compressed = await response.blob();
+                    const decompressedStream = compressed.stream().pipeThrough(new DecompressionStream('gzip'));
+                    const text = await new Response(decompressedStream).text();
+                    data = JSON.parse(text);
+                    console.log('Данные загружены из okpd2.json.gz (сжатый формат)');
+                } catch (gzError) {
+                    // Fallback на несжатый JSON (~3.3 MB)
+                    console.warn('Не удалось загрузить .gz, пробуем обычный JSON...', gzError);
+                    const response = await fetch('okpd2.json');
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    data = await response.json();
+                    console.log('Данные загружены из okpd2.json (несжатый формат)');
+                }
+
+                // Загружаем метаданные
+                let meta = {};
+                try {
+                    const metaResponse = await fetch('okpd2_meta.json');
+                    if (metaResponse.ok) {
+                        meta = await metaResponse.json();
+                    }
+                } catch (e) {
+                    console.warn('Не удалось загрузить метаданные:', e);
+                }
+
+                // Обновляем данные в интерфейсе
+                allData = data;
+                filteredData = [...allData];
+                
+                // Обновляем метаданные в шапке
+                if (meta.records_count) {
+                    document.getElementById('recordsCount').textContent = meta.records_count.toLocaleString('ru-RU');
+                } else {
+                    document.getElementById('recordsCount').textContent = allData.length.toLocaleString('ru-RU');
+                }
+                
+                if (meta.leaf_count) {
+                    document.getElementById('leafCount').textContent = meta.leaf_count.toLocaleString('ru-RU');
+                } else {
+                    const leafCount = allData.filter(item => item.l === 1).length;
+                    document.getElementById('leafCount').textContent = leafCount.toLocaleString('ru-RU');
+                }
+                
+                if (meta.source_date_display) {
+                    document.getElementById('sourceDate').textContent = meta.source_date_display;
+                } else if (meta.source_date) {
+                    const date = new Date(meta.source_date);
+                    const formatted = date.toLocaleDateString('ru-RU', { 
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric' 
+                    });
+                    document.getElementById('sourceDate').textContent = formatted;
+                }
+
+                // Скрываем загрузку, показываем пустое состояние
+                document.getElementById('loadingState').style.display = 'none';
+                container.innerHTML = `
+                    <div class="empty-state" id="emptyState">
+                        <h3>Начните вводить запрос</h3>
+                        <p>Например: <em>01.11</em> или <em>зерно пшеницы</em></p>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                container.innerHTML = `
+                    <div class="error-state">
+                        <h3>⚠️ Ошибка загрузки данных</h3>
+                        <p>Не удалось загрузить okpd2.json.gz или okpd2.json</p>
+                        <p style="margin-top: 10px; font-size: 13px; color: #64748b;">
+                            Убедитесь, что файлы находятся в той же директории, что и index.html<br>
+                            и вы открыли страницу через локальный сервер (не file://)
+                        </p>
+                        <p style="margin-top: 15px; font-size: 12px; color: #94a3b8;">
+                            Детали: ${error.message}
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        function setupEventListeners() {
+            const searchInput = document.getElementById('searchInput');
+            const leafFilter = document.getElementById('leafFilter');
+            let debounceTimer;
+
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => performSearch(e.target.value), 200);
+            });
+
+            leafFilter.addEventListener('change', () => performSearch(searchInput.value));
+
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                if (currentPage > 1) { currentPage--; renderResults(); }
+            });
+
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                const maxPage = Math.ceil(filteredData.length / itemsPerPage);
+                if (currentPage < maxPage) { currentPage++; renderResults(); }
+            });
+
+            document.getElementById('showAllBtn').addEventListener('click', () => {
+                showAll = !showAll;
+                document.getElementById('showAllBtn').textContent = showAll ? 'Свернуть (по 50)' : 'Показать все';
+                renderResults();
+            });
+        }
+
+        function performSearch(query) {
+            const leafOnly = document.getElementById('leafFilter').checked;
+            query = query.trim().toLowerCase();
+
+            if (!query) {
+                filteredData = leafOnly ? allData.filter(item => item.l === 1) : [...allData];
+            } else {
+                filteredData = allData.filter(item => {
+                    const matchesLeaf = !leafOnly || item.l === 1;
+                    const matchesCode = item.c.toLowerCase().startsWith(query);
+                    const matchesName = query.split(' ').every(word => 
+                        word.length > 0 && item.n.toLowerCase().includes(word)
+                    );
+                    return matchesLeaf && (matchesCode || matchesName);
+                });
+            }
+
+            currentPage = 1;
+            showAll = false;
+            document.getElementById('showAllBtn').textContent = 'Показать все';
+            renderResults();
+        }
+
+        function highlightText(text, query) {
+            if (!query) return text;
+            const words = query.toLowerCase().split(' ').filter(w => w.length > 0);
+            let result = text;
+            words.forEach(word => {
+                const regex = new RegExp(`(${word})`, 'gi');
+                result = result.replace(regex, '<span class="highlight">$1</span>');
+            });
+            return result;
+        }
+
+        function renderResults() {
+            const container = document.getElementById('resultsContainer');
+            const resultsInfo = document.getElementById('resultsInfo');
+            const pagination = document.getElementById('pagination');
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            if (filteredData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>Ничего не найдено</h3>
+                        <p>Попробуйте изменить запрос или снять фильтры</p>
+                    </div>
+                `;
+                resultsInfo.style.display = 'none';
+                pagination.style.display = 'none';
+                return;
+            }
+
+            resultsInfo.style.display = 'block';
+            document.getElementById('foundCount').textContent = filteredData.length.toLocaleString('ru-RU');
+
+            const displayData = showAll ? filteredData : filteredData.slice(0, currentPage * itemsPerPage);
+            const maxPage = Math.ceil(filteredData.length / itemsPerPage);
+
+            if (!showAll) {
+                document.getElementById('showingRange').textContent = ` (показано ${displayData.length} из ${filteredData.length})`;
+                pagination.style.display = 'flex';
+                document.getElementById('pageInfo').textContent = `Страница ${Math.ceil(displayData.length / itemsPerPage)} из ${maxPage}`;
+                document.getElementById('prevBtn').disabled = currentPage <= 1;
+                document.getElementById('nextBtn').disabled = currentPage >= maxPage;
+            } else {
+                document.getElementById('showingRange').textContent = '';
+                pagination.style.display = 'flex';
+                document.getElementById('pageInfo').textContent = 'Показаны все результаты';
+                document.getElementById('prevBtn').disabled = true;
+                document.getElementById('nextBtn').disabled = true;
+            }
+
+            container.innerHTML = displayData.map(item => {
+                const isBottomLevel = item.l === 1;
+                const bottomLevelBadge = isBottomLevel 
+                    ? `<span class="badge-bottom-level" title="Код нижнего уровня, используется в госзакупках">✓ Нижний уровень</span>` 
+                    : '';
+                
+                return `
+                    <div class="result-item">
+                        <div class="code-block">
+                            <span class="code" onclick="copyCode(this, '${item.c}')" title="Нажмите, чтобы скопировать">${highlightText(item.c, query)}</span>
+                            ${bottomLevelBadge}
+                        </div>
+                        <div class="name-block">
+                            <div class="name">${highlightText(item.n, query)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function copyCode(element, code) {
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = element.innerHTML;
+                element.classList.add('copied');
+                element.innerHTML = '✓ Скопировано';
+                setTimeout(() => {
+                    element.classList.remove('copied');
+                    element.innerHTML = originalText;
+                }, 1200);
+            }).catch(err => {
+                console.error('Не удалось скопировать:', err);
+            });
+        }
+    </script>
 </body>
 </html>
