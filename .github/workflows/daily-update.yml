@@ -9,23 +9,39 @@ jobs:
   trigger-kaggle:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    
+
     steps:
     - name: Install Kaggle CLI
       run: pip install -q kaggle
-      
-    - name: Configure Kaggle credentials
+
+    - name: Build kaggle.json (username + token from secret)
+      env:
+        KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
       run: |
-        mkdir -p ~/.kaggle
-        echo "{\"username\":\"eavprog\",\"key\":\"${{ secrets.KAGGLE_KEY }}\"}" > ~/.kaggle/kaggle.json
-        chmod 600 ~/.kaggle/kaggle.json
-        
+        python - <<'EOF'
+        import json, os
+        key = os.environ["KAGGLE_KEY"].strip()
+        assert key, "Секрет KAGGLE_KEY пустой"
+        path = os.path.expanduser("~/.kaggle")
+        os.makedirs(path, exist_ok=True)
+        with open(os.path.join(path, "kaggle.json"), "w") as f:
+            json.dump({"username": "eavprog", "key": key}, f)
+        os.chmod(os.path.join(path, "kaggle.json"), 0o600)
+        print("kaggle.json создан: username=eavprog, key=<из секрета>")
+        EOF
+
+    - name: Verify Kaggle credentials
+      run: |
+        echo "Проверка учётных данных Kaggle..."
+        kaggle datasets list --page-size 1 > /dev/null
+        echo "✅ Учётные данные приняты"
+
     - name: Download current notebook
       run: |
         mkdir -p ./nb
         kaggle kernels pull eavprog/okpd2-classifier-downloader -p ./nb --metadata
         ls -la ./nb
-        
+
     - name: Trigger new notebook run
       run: |
         kaggle kernels push -p ./nb
