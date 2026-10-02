@@ -3,18 +3,26 @@ name: Daily OKPD2 Update
 on:
   schedule:
     - cron: '0 5 * * *'   # 05:00 UTC = 08:00 МСК
-  workflow_dispatch:       # ручной запуск из вкладки Actions
+  workflow_dispatch:       # ручной запуск
 
 jobs:
-  trigger-kaggle:
+  sync-and-trigger:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+
+    permissions:
+      contents: write      # встроенный токен Actions для коммита
 
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
     - name: Install Kaggle CLI
       run: pip install -q kaggle
 
-    - name: Build kaggle.json from secret (JSON или голый ключ)
+    - name: Build kaggle.json from secret
       env:
         KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
       run: |
@@ -22,38 +30,58 @@ jobs:
         import json, os
         raw = os.environ["KAGGLE_KEY"].strip()
         assert raw, "Секрет KAGGLE_KEY пустой"
-
-        # Секрет может содержать либо весь kaggle.json, либо только key
         if raw.startswith("{"):
             data = json.loads(raw)
             username = data.get("username", "eavprog")
             key = str(data.get("key", "")).strip()
         else:
-            username = "eavprog"
-            key = raw
-
-        assert key, "Не удалось извлечь key из секрета"
-
+            username, key = "eavprog", raw
+        assert key, "Не удалось извлечь key"
         p = os.path.expanduser("~/.kaggle")
         os.makedirs(p, exist_ok=True)
         with open(os.path.join(p, "kaggle.json"), "w") as f:
             json.dump({"username": username, "key": key}, f)
         os.chmod(os.path.join(p, "kaggle.json"), 0o600)
-        print(f"kaggle.json создан: username={username}")
+        print("kaggle.json создан")
         EOF
 
-    - name: Verify access to notebooks (настоящая проверка авторизации)
+    - name: Download latest kernel output
       run: |
-        kaggle kernels list --user eavprog --page-size 1
-        echo "✅ Авторизация валидна: legacy-ключ принят Kaggle API"
+        mkdir -p ./output
+        kaggle kernels output eavprog/okpd2-classifier-downloader -p ./output
+        echo "Содержимое output:"
+        find ./output -maxdepth 4 -type f | head -30
 
-    - name: Download current notebook
+    - name: Copy web files to repo root
+      run: |
+        SRC=./output/okpd2_data/web
+        for f in okpd2.json okpd2.json.gz okpd2_meta.json okpd2_meta.json.gz; do
+          if [ -f "$SRC/$f" ]; then
+            cp "$SRC/$f" "./$f"
+            echo "copied $f"
+          else
+            echo "MISSING $f в output тетрадки"
+            exit 1
+          fi
+        done
+
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "github-actions@github.com"
+        git config --local user.name "GitHub Actions"
+        git add okpd2.json okpd2.json.gz okpd2_meta.json okpd2_meta.json.gz
+        if git diff --cached --quiet; then
+          echo "✅ Изменений нет — данные уже актуальны"
+        else
+          SOURCE_DATE=$(python -c "import json;print(json.load(open('okpd2_meta.json')).get('source_date','?'))")
+          git commit -m "Auto-update: OKPD2 data from kernel output (source $SOURCE_DATE) [skip ci]"
+          git push
+          echo "✅ Изменения запушены"
+        fi
+
+    - name: Trigger new notebook run (fire-and-forget)
       run: |
         mkdir -p ./nb
         kaggle kernels pull eavprog/okpd2-classifier-downloader -p ./nb --metadata
-        ls -la ./nb
-
-    - name: Trigger new notebook run
-      run: |
         kaggle kernels push -p ./nb
-        echo "✅ Notebook run triggered"
+        echo "✅ Тетрадка запущена; workflow не ждёт её завершения"
