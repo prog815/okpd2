@@ -1,0 +1,32 @@
+name: Daily OKPD2 Update
+
+on:
+  schedule:
+    - cron: '0 5 * * *'   # 05:00 UTC = 08:00 МСК
+  workflow_dispatch:       # ручной запуск из вкладки Actions
+
+jobs:
+  trigger-kaggle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - name: Install Kaggle CLI
+      run: pip install -q kaggle
+      
+    - name: Configure Kaggle credentials
+      run: |
+        mkdir -p ~/.kaggle
+        echo "{\"username\":\"eavprog\",\"key\":\"${{ secrets.KAGGLE_KEY }}\"}" > ~/.kaggle/kaggle.json
+        chmod 600 ~/.kaggle/kaggle.json
+        
+    - name: Download current notebook
+      run: |
+        mkdir -p ./nb
+        kaggle kernels pull eavprog/okpd2-classifier-downloader -p ./nb --metadata
+        ls -la ./nb
+        
+    - name: Trigger new notebook run
+      run: |
+        kaggle kernels push -p ./nb
+        echo "✅ Notebook run triggered"
