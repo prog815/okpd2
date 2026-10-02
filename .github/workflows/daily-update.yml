@@ -14,27 +14,38 @@ jobs:
     - name: Install Kaggle CLI
       run: pip install -q kaggle
 
-    - name: Build kaggle.json (username + token from secret)
+    - name: Build kaggle.json from secret (JSON или голый ключ)
       env:
         KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
       run: |
         python - <<'EOF'
         import json, os
-        key = os.environ["KAGGLE_KEY"].strip()
-        assert key, "Секрет KAGGLE_KEY пустой"
-        path = os.path.expanduser("~/.kaggle")
-        os.makedirs(path, exist_ok=True)
-        with open(os.path.join(path, "kaggle.json"), "w") as f:
-            json.dump({"username": "eavprog", "key": key}, f)
-        os.chmod(os.path.join(path, "kaggle.json"), 0o600)
-        print("kaggle.json создан: username=eavprog, key=<из секрета>")
+        raw = os.environ["KAGGLE_KEY"].strip()
+        assert raw, "Секрет KAGGLE_KEY пустой"
+
+        # Секрет может содержать либо весь kaggle.json, либо только key
+        if raw.startswith("{"):
+            data = json.loads(raw)
+            username = data.get("username", "eavprog")
+            key = str(data.get("key", "")).strip()
+        else:
+            username = "eavprog"
+            key = raw
+
+        assert key, "Не удалось извлечь key из секрета"
+
+        p = os.path.expanduser("~/.kaggle")
+        os.makedirs(p, exist_ok=True)
+        with open(os.path.join(p, "kaggle.json"), "w") as f:
+            json.dump({"username": username, "key": key}, f)
+        os.chmod(os.path.join(p, "kaggle.json"), 0o600)
+        print(f"kaggle.json создан: username={username}")
         EOF
 
-    - name: Verify Kaggle credentials
+    - name: Verify access to notebooks (настоящая проверка авторизации)
       run: |
-        echo "Проверка учётных данных Kaggle..."
-        kaggle datasets list --page-size 1 > /dev/null
-        echo "✅ Учётные данные приняты"
+        kaggle kernels list --user eavprog --page-size 1
+        echo "✅ Авторизация валидна: legacy-ключ принят Kaggle API"
 
     - name: Download current notebook
       run: |
