@@ -1,32 +1,32 @@
 {
-  "source_date": "2026-09-24",
-  "source_date_iso": "2026-09-24T06:23:32",
-  "source_date_display": "24 сентября 2026",
-  "generated_at": "2026-10-02T03:49:08",
+  "source_date": "2026-10-01",
+  "source_date_iso": "2026-10-01T08:14:16",
+  "source_date_display": "1 октября 2026",
+  "generated_at": "2026-10-02T10:48:03",
   "generated_date": "2026-10-02",
-  "version": "2026-09-24",
+  "version": "2026-10-01",
   "source_url": "https://rosstat.gov.ru/storage/mediabank/OKPD2.rar",
   "source_page": "https://rosstat.gov.ru/classification",
   "classifier_name": "ОКПД2 (ОК 034-2014)",
   "classifier_full_name": "Общероссийский классификатор продукции по видам экономической деятельности",
-  "records_count": 21045,
-  "leaf_count": 15385,
+  "records_count": 21102,
+  "leaf_count": 15432,
   "sections_count": 21,
   "source_files": [
     {
-      "filename": "OKPD2_01-35.docx",
-      "date_iso": "2026-09-24T06:23:26",
-      "date_display": "24.09.2026",
-      "size_kb": 655.9
+      "filename": "OKPD2 36-99.docx",
+      "date_iso": "2026-10-01T07:59:28",
+      "date_display": "01.10.2026",
+      "size_kb": 400.8
     },
     {
-      "filename": "OKPD2_36-99.docx",
-      "date_iso": "2026-09-24T06:23:32",
-      "date_display": "24.09.2026",
-      "size_kb": 400.8
+      "filename": "OKPD2 01-35.docx",
+      "date_iso": "2026-10-01T08:14:16",
+      "date_display": "01.10.2026",
+      "size_kb": 757.0
     }
   ],
-  "data_hash": "23e6e447a2eeb098",
-  "json_size_kb": 3402.0,
-  "gz_size_kb": 340.5
+  "data_hash": "a59dd6f936256ef4",
+  "json_size_kb": 3412.4,
+  "gz_size_kb": 342.1
 }
