@@ -1,664 +1,1100 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Справочник ОКПД2 — бесплатный онлайн-поиск кодов классификатора</title>
-    <meta name="description" content="Быстрый и удобный поиск по ОКПД2 (ОК 034-2014). Находите коды и названия продукции для госзакупок (44-ФЗ, 223-ФЗ), статистики и бухгалтерии. Актуальная база.">
-    <meta name="keywords" content="ОКПД2, классификатор продукции, коды ОКПД2, поиск ОКПД2, ОК 034-2014, госзакупки, статистика, коды нижнего уровня">
-    
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg: #f8fafc;
-            --surface: #ffffff;
-            --text: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --success-bg: #ecfdf5;
-            --highlight: #fef08a;
-        }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Справочник ОКПД2 — бесплатный онлайн-поиск кодов классификатора</title>
+  <meta name="description" content="Интерактивный справочник ОКПД2 (ОК 034-2014). Мгновенный поиск по кодам и наименованиям продукции для закупок по 44-ФЗ и 223-ФЗ.">
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+  <style>
+    :root {
+      --bg: #f5f7f5;
+      --card: #ffffff;
+      --text: #17201a;
+      --muted: #617066;
+      --border: #dbe3db;
+      --accent: #4e9450;
+      --accent-dark: #3d7a3f;
+      --accent-soft: #e8f3e8;
+      --warning: #fff4d6;
+      --shadow: 0 10px 30px rgba(20, 35, 25, 0.08);
+      --radius: 16px;
+      --radius-sm: 12px;
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; width: 100%; }
+    html {
+      scroll-behavior: smooth;
+    }
 
-        /* Header */
-        header {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 30px 0 20px;
-        }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
 
-        h1 { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    common-projects-menu {
+      display: block;
+      width: 100%;
+    }
 
-        .header-desc {
-            color: var(--text-muted);
-            font-size: 15px;
-            max-width: 700px;
-            margin-bottom: 20px;
-        }
-        .header-desc a { color: var(--primary); text-decoration: none; }
-        .header-desc a:hover { text-decoration: underline; }
+    .page {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 16px 16px 110px;
+    }
 
-        /* Info Cards */
-        .info-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
+    .hero {
+      padding: 18px 0 8px;
+    }
 
-        .info-card {
-            background: #f1f5f9;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid var(--primary);
-        }
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      line-height: 1.15;
+    }
 
-        .info-card.leaf-card { border-left-color: var(--success); }
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 900px;
+    }
 
-        .info-card-title {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
+    .search-panel {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      margin: 14px 0 18px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
 
-        .info-card-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text);
-        }
+    .search-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
 
-        .info-card-note {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
+    #q {
+      flex: 1 1 280px;
+      min-width: 0;
+      padding: 13px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      outline: none;
+      background: #fff;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
 
-        /* Main Content */
-        main { flex: 1; }
+    #q:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(78, 148, 80, 0.12);
+    }
 
-        /* Search */
-        .search-container {
-            background: var(--surface);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            margin: 30px 0;
-            position: sticky;
-            top: 10px;
-            z-index: 100;
-        }
+    .leaf-filter {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
 
-        .search-row {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+    .leaf-filter input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+      margin: 0;
+    }
 
-        #searchInput {
-            flex: 1;
-            min-width: 280px;
-            padding: 14px 18px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.2s;
-        }
+    .hint {
+      margin: 10px 2px 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
 
-        #searchInput:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
+    .status {
+      margin-top: 8px;
+      font-weight: 600;
+      color: var(--accent-dark);
+    }
 
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 15px;
-            background: #f8fafc;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            user-select: none;
-        }
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      align-items: start;
+    }
 
-        .filter-group:hover { background: #f1f5f9; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: 0 4px 16px rgba(20, 35, 25, 0.04);
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    }
 
-        #leafFilter {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: var(--success);
-        }
+    .card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(20, 35, 25, 0.08);
+      border-color: #c9d8c9;
+    }
 
-        .filter-group label {
-            font-size: 14px;
-            color: var(--text);
-            cursor: pointer;
-            font-weight: 500;
-        }
+    .card.leaf-card {
+      border-left: 4px solid var(--accent);
+    }
 
-        .hint {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 10px;
-        }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
 
-        /* Results */
-        .results-info {
-            background: #eff6ff;
-            color: #1e40af;
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 14px;
-            font-weight: 500;
-        }
+    .code-btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: #f8fbf8;
+      color: var(--accent-dark);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 700;
+      font-size: 0.98rem;
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, transform .1s ease;
+      flex: 0 0 auto;
+      white-space: nowrap;
+      overflow-wrap: normal;
+      word-break: keep-all;
+    }
 
-        .results-container {
-            background: var(--surface);
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            overflow: hidden;
-            min-height: 200px;
-        }
+    .code-btn:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
 
-        .result-item {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: flex-start;
-            gap: 20px;
-            transition: background 0.15s;
-        }
+    .code-btn:active {
+      transform: scale(0.98);
+    }
 
-        .result-item:hover { background: #f8fafc; }
-        .result-item:last-child { border-bottom: none; }
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-end;
+      flex: 1 1 auto;
+    }
 
-        .code-block {
-            flex-shrink: 0;
-            min-width: 160px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
 
-        .code {
-            font-family: 'SF Mono', 'Consolas', monospace;
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--primary);
-            cursor: pointer;
-            padding: 6px 10px;
-            background: #eff6ff;
-            border-radius: 6px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-            width: fit-content;
-        }
+    .badge.level {
+      background: #eef3ff;
+      color: #31508f;
+      border-color: #d8e3ff;
+    }
 
-        .code:hover {
-            background: var(--primary);
-            color: white;
-        }
+    .badge.leaf {
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      border-color: #c8e3c8;
+    }
 
-        .code.copied {
-            background: var(--success);
-            color: white;
-        }
+    .name {
+      color: var(--text);
+      font-size: 0.98rem;
+      overflow-wrap: anywhere;
+    }
 
-        .badge-bottom-level {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: var(--success-bg);
-            color: #065f46;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            width: fit-content;
-            border: 1px solid #a7f3d0;
-        }
+    mark {
+      background: #ffe58a;
+      color: inherit;
+      padding: 0 2px;
+      border-radius: 4px;
+    }
 
-        .name-block { flex: 1; }
+    .empty {
+      margin-top: 10px;
+      padding: 24px;
+      background: var(--card);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      color: var(--muted);
+      text-align: center;
+    }
 
-        .name {
-            font-size: 15px;
-            color: var(--text);
-            line-height: 1.5;
-        }
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      border-radius: 999px;
+      padding: 11px 16px;
+      font-size: 0.96rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, transform .1s ease;
+    }
 
-        .highlight {
-            background: var(--highlight);
-            padding: 0 2px;
-            border-radius: 2px;
-            font-weight: 600;
-        }
+    .btn:hover {
+      background: #f3f8f3;
+      border-color: #bfd3bf;
+    }
 
-        /* Pagination */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
-            padding: 25px;
-            background: var(--surface);
-            border-radius: 12px;
-            margin-top: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            margin-bottom: 40px;
-        }
+    .btn:active {
+      transform: scale(0.98);
+    }
 
-        .btn {
-            padding: 10px 20px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            background: var(--surface);
-            color: var(--text);
-            transition: all 0.2s;
-        }
+    .more-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+    }
 
-        .btn:hover:not(:disabled) {
-            background: #f1f5f9;
-            border-color: #cbd5e1;
-        }
+    .footer {
+      margin-top: 28px;
+      padding: 18px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
 
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
+    .stats {
+      color: var(--text);
+      font-size: 0.98rem;
+    }
 
-        .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+    .stats b {
+      color: var(--accent-dark);
+    }
 
-        .btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
 
-        /* States */
-        .loading, .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-muted);
-        }
-        .empty-state h3 { font-size: 18px; color: var(--text); margin-bottom: 8px; }
-        .error-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #dc2626;
-            background: #fef2f2;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
+    .links a {
+      color: var(--accent-dark);
+      text-decoration: none;
+      font-weight: 600;
+      border-bottom: 1px solid transparent;
+    }
 
-        /* Footer & Menu */
-        footer {
-            text-align: center;
-            padding: 30px 0;
-            color: var(--text-muted);
-            font-size: 13px;
-            border-top: 1px solid var(--border);
-            margin-top: auto;
-        }
-        footer a { color: var(--primary); text-decoration: none; }
-        footer a:hover { text-decoration: underline; }
+    .links a:hover {
+      border-bottom-color: var(--accent);
+    }
 
-        .menu-wrapper {
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            padding: 20px 0;
-        }
+    .copy-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
 
-        @media (max-width: 640px) {
-            .search-row { flex-direction: column; align-items: stretch; }
-            #searchInput { min-width: 100%; }
-            .result-item { flex-direction: column; gap: 10px; }
-            .code-block { min-width: 100%; }
-        }
-    </style>
+    .copy-note a {
+      color: var(--accent-dark);
+      text-decoration: none;
+    }
+
+    .copy-note a:hover {
+      text-decoration: underline;
+    }
+
+    .fab-stack {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 50;
+    }
+
+    .fab {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--accent-dark);
+      font-size: 1.25rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity .18s ease, transform .18s ease, background .15s ease;
+      backdrop-filter: blur(8px);
+    }
+
+    .fab.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .fab:hover {
+      background: var(--accent-soft);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translate(-50%, 16px);
+      background: #1f2a22;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 0.94rem;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 60;
+      max-width: calc(100vw - 32px);
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 12px 12px 100px;
+      }
+
+      .search-panel {
+        padding: 12px;
+      }
+
+      .card-top {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .code-btn {
+        align-self: flex-start;
+      }
+
+      .badges {
+        justify-content: flex-start;
+      }
+
+      .fab-stack {
+        right: 12px;
+        bottom: 12px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>📁 Интерактивный справочник ОКПД2</h1>
-            <div class="header-desc">
-                <p>Общероссийский классификатор продукции по видам экономической деятельности (ОК 034-2014). Используется для государственных закупок (44-ФЗ, 223-ФЗ), статистики, налогообложения и стандартизации.</p>
-            </div>
-            
-            <div class="info-cards">
-                <div class="info-card">
-                    <div class="info-card-title">Всего записей</div>
-                    <div class="info-card-value" id="recordsCount">загрузка...</div>
-                    <div class="info-card-note">Полная база классификатора</div>
-                </div>
-                <div class="info-card leaf-card">
-                    <div class="info-card-title">Коды нижнего уровня</div>
-                    <div class="info-card-value" id="leafCount">загрузка...</div>
-                    <div class="info-card-note">Именно эти коды указываются в извещениях о закупках</div>
-                </div>
-                <div class="info-card">
-                    <div class="info-card-title">Дата актуальности</div>
-                    <div class="info-card-value" id="sourceDate">загрузка...</div>
-                    <div class="info-card-note">Источник: <a href="https://rosstat.gov.ru/classification" target="_blank">Росстат</a></div>
-                </div>
-            </div>
-        </div>
+  
+
+  <!-- Общее меню экосистемы — в самом верху страницы -->
+  <script src="https://prog815.github.io/common-menu/menu.js?v=2.0.0"></script>
+  <common-projects-menu></common-projects-menu>
+
+  <div class="page" id="top">
+    <header class="hero">
+      <h1>📁 Интерактивный справочник ОКПД2</h1>
+      <p class="lead">
+        Общероссийский классификатор продукции по видам экономической деятельности (ОК 034-2014).
+        Используется для государственных закупок по 44-ФЗ и 223-ФЗ, статистики, налогообложения и стандартизации.
+      </p>
     </header>
 
-    <main class="container">
-        <div class="search-container">
-            <div class="search-row">
-                <input 
-                    type="text" 
-                    id="searchInput" 
-                    placeholder="Введите код (01.11.1) или название (Пшеница)..."
-                    aria-label="Поле для поиска по справочнику ОКПД2"
-                    autocomplete="off"
-                >
-                <div class="filter-group" title="Оставить только коды, которые можно указывать в закупочной документации">
-                    <input type="checkbox" id="leafFilter">
-                    <label for="leafFilter">Только коды нижнего уровня</label>
-                </div>
-            </div>
-            <div class="hint">Поиск запустится автоматически при вводе. Поддерживается поиск по нескольким словам.</div>
-        </div>
+    <section class="search-panel" aria-label="Поиск по справочнику ОКПД2">
+      <div class="search-row">
+        <input
+          id="q"
+          type="search"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Введите код или название, например: 01.11 или зерно пшеницы"
+          aria-label="Поисковый запрос"
+        >
+        <label class="leaf-filter" title="Показывать только коды нижнего уровня, пригодные для закупок">
+          <input type="checkbox" id="leafOnly">
+          <span>Только коды нижнего уровня</span>
+        </label>
+      </div>
 
-        <div class="results-info" id="resultsInfo" style="display: none;">
-            Найдено: <strong id="foundCount">0</strong> результатов <span id="showingRange"></span>
-        </div>
+      <p class="hint">
+        Поиск по коду выполняется с начала кода. Поиск по названию поддерживается по нескольким словам.
+        Кликните по коду, чтобы скопировать его.
+      </p>
 
-        <div class="results-container" id="resultsContainer">
-            <div class="loading" id="loadingState">
-                Загрузка данных из okpd2.json.gz...
-            </div>
-        </div>
+      <div class="status" id="found" aria-live="polite">Загрузка данных…</div>
+    </section>
 
-        <div class="pagination" id="pagination" style="display: none;">
-            <button class="btn" id="prevBtn" disabled>← Назад</button>
-            <span id="pageInfo" style="font-size: 14px; color: var(--text-muted);">Страница 1</span>
-            <button class="btn" id="nextBtn" disabled>Вперёд →</button>
-            <button class="btn btn-primary" id="showAllBtn">Показать все</button>
-        </div>
+    <main>
+      <div id="results" class="cards" aria-live="polite"></div>
+
+      <div id="empty" class="empty" hidden>
+        Начните вводить запрос — результаты появятся мгновенно.
+      </div>
+
+      <div class="more-wrap">
+        <button id="loadMore" class="btn" type="button" hidden>Показать ещё</button>
+      </div>
     </main>
 
-    <footer>
-        <div class="container">
-            <p>Проект с открытым исходным кодом на <a href="https://github.com/prog815/okpd2" target="_blank">GitHub</a>.</p>
-        </div>
+    <footer class="footer">
+      <div id="stats" class="stats">
+        Загрузка статистики…
+      </div>
+
+      <div class="links">
+        <a href="https://rosstat.gov.ru/classification" target="_blank" rel="noopener noreferrer">Росстат</a>
+        <a href="https://www.consultant.ru/document/cons_doc_LAW_163703/" target="_blank" rel="noopener noreferrer">КонсультантПлюс</a>
+        <a href="https://ivo.garant.ru/#/document/70650730" target="_blank" rel="noopener noreferrer">Гарант</a>
+      </div>
+
+      <div class="copy-note">
+        Проект с открытым исходным кодом на
+        <a href="https://github.com/prog815/okpd2" target="_blank" rel="noopener noreferrer">GitHub</a>.
+      </div>
     </footer>
+  </div>
 
-    <!-- Навигационное меню для перехода между проектами -->
-    <div class="menu-wrapper">
-        <div class="container">
-            <script src="https://prog815.github.io/common-menu/menu.js"></script>
-            <common-projects-menu></common-projects-menu>
-        </div>
-    </div>
+  <div class="fab-stack" aria-hidden="false">
+    <button id="toTop" class="fab" type="button" title="Наверх" aria-label="Наверх">↑</button>
+    <button id="toBottom" class="fab" type="button" title="Вниз" aria-label="Вниз">↓</button>
+  </div>
 
-    <script>
-        let allData = [];
-        let filteredData = [];
-        let currentPage = 1;
-        const itemsPerPage = 50;
-        let showAll = false;
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-        // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', async () => {
-            await loadData();
-            setupEventListeners();
+  <script>
+    (() => {
+      'use strict';
+
+      const PAGE_SIZE = 20;
+
+      const els = {
+        q: document.getElementById('q'),
+        leafOnly: document.getElementById('leafOnly'),
+        found: document.getElementById('found'),
+        results: document.getElementById('results'),
+        empty: document.getElementById('empty'),
+        loadMore: document.getElementById('loadMore'),
+        stats: document.getElementById('stats'),
+        toTop: document.getElementById('toTop'),
+        toBottom: document.getElementById('toBottom'),
+        toast: document.getElementById('toast')
+      };
+
+      let allData = [];
+      let filtered = [];
+      let visibleCount = 0;
+      let isLoading = true;
+      let meta = null;
+      let toastTimer = null;
+      let searchTimer = null;
+
+      function plural(n, forms) {
+        const abs = Math.abs(n) % 100;
+        const n1 = abs % 10;
+        if (abs > 10 && abs < 20) return forms[2];
+        if (n1 > 1 && n1 < 5) return forms[1];
+        if (n1 === 1) return forms[0];
+        return forms[2];
+      }
+
+      function formatNumber(n) {
+        return Number(n || 0).toLocaleString('ru-RU');
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function escapeRegExp(value) {
+        return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      }
+
+      function normalize(value) {
+        return String(value ?? '')
+          .toLowerCase()
+          .replace(/ё/g, 'е')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
+      function onlyDigits(value) {
+        return String(value ?? '').replace(/\D/g, '');
+      }
+
+      function isNumericTerm(term) {
+        return /^[0-9.]+$/.test(term);
+      }
+
+      function parseNumericGroups(term) {
+        return String(term)
+          .split('.')
+          .map(part => part.trim())
+          .filter(Boolean)
+          .map(Number)
+          .filter(n => Number.isFinite(n));
+      }
+
+      function isGroupPrefix(prefixGroups, codeGroups) {
+        if (!prefixGroups.length || prefixGroups.length > codeGroups.length) {
+          return false;
+        }
+
+        for (let i = 0; i < prefixGroups.length; i++) {
+          if (prefixGroups[i] !== codeGroups[i]) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+
+      function levelName(v) {
+        const map = {
+          2: 'класс',
+          3: 'подкласс',
+          4: 'группа',
+          5: 'подгруппа',
+          6: 'вид',
+          7: 'детализация',
+          8: 'детализация',
+          9: 'категория'
+        };
+        return map[v] || `уровень ${v}`;
+      }
+
+      function compareCodeParts(a, b) {
+        const maxLen = Math.max(a.length, b.length);
+
+        for (let i = 0; i < maxLen; i++) {
+          const x = a[i];
+          const y = b[i];
+
+          if (x === y) continue;
+          if (x === undefined) return -1;
+          if (y === undefined) return 1;
+
+          if (typeof x === 'number' && typeof y === 'number') {
+            return x - y;
+          }
+
+          return String(x).localeCompare(String(y), 'ru');
+        }
+
+        return 0;
+      }
+
+      function compareItemsByCode(a, b) {
+        return compareCodeParts(a._parts, b._parts);
+      }
+
+      function prepareItem(item) {
+        const code = String(item.c ?? '');
+        const name = String(item.n ?? '');
+        const level = Number(item.v ?? onlyDigits(code).length);
+        const leaf = Number(item.l) === 1 ? 1 : 0;
+        const codeDigits = onlyDigits(code);
+
+        return {
+          ...item,
+          c: code,
+          n: name,
+          v: level,
+          l: leaf,
+          _n: normalize(name),
+          _cd: codeDigits,
+          _text: `${code} ${normalize(name)}`,
+          _parts: code.split('.').map(part => (/^\d+$/.test(part) ? Number(part) : part)),
+          _groups: code.split('.').map(part => Number(part) || 0)
+        };
+      }
+
+      function buildHighlightPatterns(terms) {
+        const patterns = new Set();
+
+        for (const term of terms) {
+          if (!term) continue;
+
+          const add = (value) => {
+            if (value) patterns.add(escapeRegExp(value));
+          };
+
+          add(term);
+
+          if (term.includes('е')) {
+            add(term.replace(/е/g, 'ё'));
+          }
+
+          if (term.includes('ё')) {
+            add(term.replace(/ё/g, 'е'));
+          }
+        }
+
+        return Array.from(patterns).sort((a, b) => b.length - a.length);
+      }
+
+      function highlight(text, terms) {
+        const html = escapeHtml(text);
+        const patterns = buildHighlightPatterns(terms || []);
+
+        if (!patterns.length) return html;
+
+        const re = new RegExp(`(${patterns.join('|')})`, 'gi');
+        return html.replace(re, '<mark>$1</mark>');
+      }
+
+      function getCodeHighlightTerms(item, terms) {
+        const result = [];
+
+        for (const term of terms) {
+          if (!isNumericTerm(term)) continue;
+
+          if (item.c.startsWith(term)) {
+            result.push(term);
+            continue;
+          }
+
+          const termGroups = parseNumericGroups(term);
+          if (isGroupPrefix(termGroups, item._groups)) {
+            result.push(item._groups.slice(0, termGroups.length).join('.'));
+          }
+        }
+
+        return result;
+      }
+
+      function getCurrentTerms() {
+        const q = normalize(els.q.value);
+        return q ? q.split(' ').filter(Boolean) : [];
+      }
+
+      function filterData() {
+        const terms = getCurrentTerms();
+        const leafOnly = els.leafOnly.checked;
+
+        if (!terms.length) {
+          filtered = leafOnly ? allData.filter(item => item.l === 1) : allData.slice();
+          return;
+        }
+
+        const result = [];
+
+        for (const item of allData) {
+          if (leafOnly && item.l !== 1) continue;
+
+          let ok = true;
+          let score = 0;
+
+          for (const term of terms) {
+            let matched = false;
+            const numeric = isNumericTerm(term);
+
+            if (numeric) {
+              const digitsTerm = onlyDigits(term);
+
+              if (digitsTerm && item._cd.startsWith(digitsTerm)) {
+                matched = true;
+                score += 1000 - Math.min(900, Math.abs(item._cd.length - digitsTerm.length) * 20);
+              }
+
+              if (!matched) {
+                const termGroups = parseNumericGroups(term);
+                if (isGroupPrefix(termGroups, item._groups)) {
+                  matched = true;
+                  score += 950 - Math.min(800, (item._groups.length - termGroups.length) * 50);
+                }
+              }
+            } else {
+              if (item._text.includes(term)) {
+                matched = true;
+                score += 70;
+              }
+
+              if (!matched && item._n.includes(term)) {
+                matched = true;
+                score += item._n.startsWith(term) ? 120 : 55;
+              }
+            }
+
+            if (!matched) {
+              ok = false;
+              break;
+            }
+          }
+
+          if (ok) {
+            if (item.l === 1) score += 15;
+            result.push({ item, score });
+          }
+        }
+
+        result.sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score;
+          return compareItemsByCode(a.item, b.item);
         });
 
-        // Загрузка данных с поддержкой gzip
-        async function loadData() {
-            const container = document.getElementById('resultsContainer');
-            
-            try {
-                let data;
-                try {
-                    // Пробуем загрузить сжатый файл (рекомендуется, ~341 KB)
-                    const response = await fetch('okpd2.json.gz');
-                    if (!response.ok) throw new Error('HTTP ' + response.status);
-                    
-                    const compressed = await response.blob();
-                    const decompressedStream = compressed.stream().pipeThrough(new DecompressionStream('gzip'));
-                    const text = await new Response(decompressedStream).text();
-                    data = JSON.parse(text);
-                    console.log('Данные загружены из okpd2.json.gz (сжатый формат)');
-                } catch (gzError) {
-                    // Fallback на несжатый JSON (~3.3 MB)
-                    console.warn('Не удалось загрузить .gz, пробуем обычный JSON...', gzError);
-                    const response = await fetch('okpd2.json');
-                    if (!response.ok) throw new Error('HTTP ' + response.status);
-                    data = await response.json();
-                    console.log('Данные загружены из okpd2.json (несжатый формат)');
-                }
+        filtered = result.map(entry => entry.item);
+      }
 
-                // Загружаем метаданные
-                let meta = {};
-                try {
-                    const metaResponse = await fetch('okpd2_meta.json');
-                    if (metaResponse.ok) {
-                        meta = await metaResponse.json();
-                    }
-                } catch (e) {
-                    console.warn('Не удалось загрузить метаданные:', e);
-                }
+      function createCard(item, terms) {
+        const card = document.createElement('article');
+        card.className = `card${item.l === 1 ? ' leaf-card' : ''}`;
 
-                // Обновляем данные в интерфейсе
-                allData = data;
-                filteredData = [...allData];
-                
-                // Обновляем метаданные в шапке
-                if (meta.records_count) {
-                    document.getElementById('recordsCount').textContent = meta.records_count.toLocaleString('ru-RU');
-                } else {
-                    document.getElementById('recordsCount').textContent = allData.length.toLocaleString('ru-RU');
-                }
-                
-                if (meta.leaf_count) {
-                    document.getElementById('leafCount').textContent = meta.leaf_count.toLocaleString('ru-RU');
-                } else {
-                    const leafCount = allData.filter(item => item.l === 1).length;
-                    document.getElementById('leafCount').textContent = leafCount.toLocaleString('ru-RU');
-                }
-                
-                if (meta.source_date_display) {
-                    document.getElementById('sourceDate').textContent = meta.source_date_display;
-                } else if (meta.source_date) {
-                    const date = new Date(meta.source_date);
-                    const formatted = date.toLocaleDateString('ru-RU', { 
-                        day: 'numeric', 
-                        month: 'long', 
-                        year: 'numeric' 
-                    });
-                    document.getElementById('sourceDate').textContent = formatted;
-                }
+        const top = document.createElement('div');
+        top.className = 'card-top';
 
-                // Скрываем загрузку, показываем пустое состояние
-                document.getElementById('loadingState').style.display = 'none';
-                container.innerHTML = `
-                    <div class="empty-state" id="emptyState">
-                        <h3>Начните вводить запрос</h3>
-                        <p>Например: <em>01.11</em> или <em>зерно пшеницы</em></p>
-                    </div>
-                `;
+        const codeBtn = document.createElement('button');
+        codeBtn.type = 'button';
+        codeBtn.className = 'code-btn';
+        codeBtn.title = 'Скопировать код';
+        codeBtn.dataset.code = item.c;
 
-            } catch (error) {
-                console.error('Ошибка загрузки данных:', error);
-                container.innerHTML = `
-                    <div class="error-state">
-                        <h3>⚠️ Ошибка загрузки данных</h3>
-                        <p>Не удалось загрузить okpd2.json.gz или okpd2.json</p>
-                        <p style="margin-top: 10px; font-size: 13px; color: #64748b;">
-                            Убедитесь, что файлы находятся в той же директории, что и index.html<br>
-                            и вы открыли страницу через локальный сервер (не file://)
-                        </p>
-                        <p style="margin-top: 15px; font-size: 12px; color: #94a3b8;">
-                            Детали: ${error.message}
-                        </p>
-                    </div>
-                `;
-            }
+        const numericTerms = terms.filter(isNumericTerm);
+        const codeHighlightTerms = numericTerms.length
+          ? getCodeHighlightTerms(item, numericTerms)
+          : terms;
+
+        codeBtn.innerHTML = highlight(item.c, codeHighlightTerms);
+
+        const badges = document.createElement('div');
+        badges.className = 'badges';
+
+        const levelBadge = document.createElement('span');
+        levelBadge.className = 'badge level';
+        levelBadge.textContent = levelName(item.v);
+        badges.appendChild(levelBadge);
+
+        if (item.l === 1) {
+          const leafBadge = document.createElement('span');
+          leafBadge.className = 'badge leaf';
+          leafBadge.textContent = 'нижний уровень';
+          badges.appendChild(leafBadge);
         }
 
-        function setupEventListeners() {
-            const searchInput = document.getElementById('searchInput');
-            const leafFilter = document.getElementById('leafFilter');
-            let debounceTimer;
+        top.append(codeBtn, badges);
 
-            searchInput.addEventListener('input', (e) => {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => performSearch(e.target.value), 200);
-            });
+        const name = document.createElement('div');
+        name.className = 'name';
+        name.innerHTML = highlight(item.n, terms);
 
-            leafFilter.addEventListener('change', () => performSearch(searchInput.value));
+        card.append(top, name);
+        return card;
+      }
 
-            document.getElementById('prevBtn').addEventListener('click', () => {
-                if (currentPage > 1) { currentPage--; renderResults(); }
-            });
+      function appendItems(items) {
+        if (!items.length) return;
 
-            document.getElementById('nextBtn').addEventListener('click', () => {
-                const maxPage = Math.ceil(filteredData.length / itemsPerPage);
-                if (currentPage < maxPage) { currentPage++; renderResults(); }
-            });
+        const terms = getCurrentTerms();
+        const frag = document.createDocumentFragment();
 
-            document.getElementById('showAllBtn').addEventListener('click', () => {
-                showAll = !showAll;
-                document.getElementById('showAllBtn').textContent = showAll ? 'Свернуть (по 50)' : 'Показать все';
-                renderResults();
-            });
+        for (const item of items) {
+          frag.appendChild(createCard(item, terms));
         }
 
-        function performSearch(query) {
-            const leafOnly = document.getElementById('leafFilter').checked;
-            query = query.trim().toLowerCase();
+        els.results.appendChild(frag);
+      }
 
-            if (!query) {
-                filteredData = leafOnly ? allData.filter(item => item.l === 1) : [...allData];
-            } else {
-                filteredData = allData.filter(item => {
-                    const matchesLeaf = !leafOnly || item.l === 1;
-                    const matchesCode = item.c.toLowerCase().startsWith(query);
-                    const matchesName = query.split(' ').every(word => 
-                        word.length > 0 && item.n.toLowerCase().includes(word)
-                    );
-                    return matchesLeaf && (matchesCode || matchesName);
-                });
-            }
+      function updateLoadMore() {
+        const total = filtered.length;
+        const shown = visibleCount;
+        const remaining = total - shown;
 
-            currentPage = 1;
-            showAll = false;
-            document.getElementById('showAllBtn').textContent = 'Показать все';
-            renderResults();
+        if (remaining <= 0) {
+          els.loadMore.hidden = true;
+          return;
         }
 
-        function highlightText(text, query) {
-            if (!query) return text;
-            const words = query.toLowerCase().split(' ').filter(w => w.length > 0);
-            let result = text;
-            words.forEach(word => {
-                const regex = new RegExp(`(${word})`, 'gi');
-                result = result.replace(regex, '<span class="highlight">$1</span>');
-            });
-            return result;
+        const next = Math.min(PAGE_SIZE, remaining);
+
+        els.loadMore.hidden = false;
+        els.loadMore.textContent =
+          `Показать ещё ${formatNumber(next)} — уже показано ${formatNumber(shown)} из ${formatNumber(total)}`;
+      }
+
+      function updateStatus() {
+        if (isLoading) {
+          els.found.textContent = 'Загрузка данных…';
+          return;
         }
 
-        function renderResults() {
-            const container = document.getElementById('resultsContainer');
-            const resultsInfo = document.getElementById('resultsInfo');
-            const pagination = document.getElementById('pagination');
-            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+        const n = filtered.length;
+        els.found.textContent = `Найдено: ${formatNumber(n)} ${plural(n, ['результат', 'результата', 'результатов'])}`;
+      }
 
-            if (filteredData.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <h3>Ничего не найдено</h3>
-                        <p>Попробуйте изменить запрос или снять фильтры</p>
-                    </div>
-                `;
-                resultsInfo.style.display = 'none';
-                pagination.style.display = 'none';
-                return;
-            }
+      function renderAll() {
+        if (isLoading) return;
 
-            resultsInfo.style.display = 'block';
-            document.getElementById('foundCount').textContent = filteredData.length.toLocaleString('ru-RU');
+        els.results.innerHTML = '';
 
-            const displayData = showAll ? filteredData : filteredData.slice(0, currentPage * itemsPerPage);
-            const maxPage = Math.ceil(filteredData.length / itemsPerPage);
-
-            if (!showAll) {
-                document.getElementById('showingRange').textContent = ` (показано ${displayData.length} из ${filteredData.length})`;
-                pagination.style.display = 'flex';
-                document.getElementById('pageInfo').textContent = `Страница ${Math.ceil(displayData.length / itemsPerPage)} из ${maxPage}`;
-                document.getElementById('prevBtn').disabled = currentPage <= 1;
-                document.getElementById('nextBtn').disabled = currentPage >= maxPage;
-            } else {
-                document.getElementById('showingRange').textContent = '';
-                pagination.style.display = 'flex';
-                document.getElementById('pageInfo').textContent = 'Показаны все результаты';
-                document.getElementById('prevBtn').disabled = true;
-                document.getElementById('nextBtn').disabled = true;
-            }
-
-            container.innerHTML = displayData.map(item => {
-                const isBottomLevel = item.l === 1;
-                const bottomLevelBadge = isBottomLevel 
-                    ? `<span class="badge-bottom-level" title="Код нижнего уровня, используется в госзакупках">✓ Нижний уровень</span>` 
-                    : '';
-                
-                return `
-                    <div class="result-item">
-                        <div class="code-block">
-                            <span class="code" onclick="copyCode(this, '${item.c}')" title="Нажмите, чтобы скопировать">${highlightText(item.c, query)}</span>
-                            ${bottomLevelBadge}
-                        </div>
-                        <div class="name-block">
-                            <div class="name">${highlightText(item.n, query)}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+        if (!filtered.length) {
+          els.empty.hidden = false;
+          els.empty.innerHTML = els.q.value.trim()
+            ? '<strong>Ничего не найдено</strong><br>Попробуйте другой запрос или отключите фильтр «Только коды нижнего уровня».'
+            : '<strong>Нет данных</strong><br>Справочник не содержит записей.';
+          els.loadMore.hidden = true;
+          return;
         }
 
-        function copyCode(element, code) {
-            navigator.clipboard.writeText(code).then(() => {
-                const originalText = element.innerHTML;
-                element.classList.add('copied');
-                element.innerHTML = '✓ Скопировано';
-                setTimeout(() => {
-                    element.classList.remove('copied');
-                    element.innerHTML = originalText;
-                }, 1200);
-            }).catch(err => {
-                console.error('Не удалось скопировать:', err);
-            });
+        els.empty.hidden = true;
+        visibleCount = Math.min(PAGE_SIZE, filtered.length);
+        appendItems(filtered.slice(0, visibleCount));
+        updateLoadMore();
+      }
+
+      function applySearch() {
+        filterData();
+        renderAll();
+        updateStatus();
+      }
+
+      function updateStats() {
+        const total = allData.length;
+        const leaf = allData.reduce((acc, item) => acc + (item.l === 1 ? 1 : 0), 0);
+        const date = meta?.source_date_display || meta?.source_date || '—';
+
+        els.stats.innerHTML =
+          `В справочнике <b>${formatNumber(total)}</b> ${plural(total, ['запись', 'записи', 'записей'])}, ` +
+          `из них <b>${formatNumber(leaf)}</b> ${plural(leaf, ['код', 'кода', 'кодов'])} нижнего уровня. ` +
+          `Дата актуальности: <b>${escapeHtml(date)}</b>.`;
+      }
+
+      function showToast(message) {
+        clearTimeout(toastTimer);
+        els.toast.textContent = message;
+        els.toast.classList.add('show');
+
+        toastTimer = setTimeout(() => {
+          els.toast.classList.remove('show');
+        }, 1800);
+      }
+
+      async function copyText(text) {
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            return true;
+          }
+        } catch (_) {
+          // fallback below
         }
-    </script>
+
+        try {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          const ok = document.execCommand('copy');
+          document.body.removeChild(textarea);
+          return ok;
+        } catch (_) {
+          return false;
+        }
+      }
+
+      async function fetchJson(url) {
+        const response = await fetch(url, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status} for ${url}`);
+        }
+        return response.json();
+      }
+
+      async function fetchGzipJson(url) {
+        const response = await fetch(url, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status} for ${url}`);
+        }
+
+        if (typeof DecompressionStream === 'undefined' || !response.body) {
+          throw new Error('DecompressionStream is not available');
+        }
+
+        const stream = response.body.pipeThrough(new DecompressionStream('gzip'));
+        const reader = stream.getReader();
+        const chunks = [];
+        let totalLength = 0;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          totalLength += value.length;
+        }
+
+        const buffer = new Uint8Array(totalLength);
+        let offset = 0;
+
+        for (const chunk of chunks) {
+          buffer.set(chunk, offset);
+          offset += chunk.length;
+        }
+
+        const text = new TextDecoder('utf-8').decode(buffer);
+        return JSON.parse(text);
+      }
+
+      async function loadData() {
+        try {
+          return await fetchGzipJson('okpd2.json.gz');
+        } catch (_) {
+          return await fetchJson('okpd2.json');
+        }
+      }
+
+      async function loadMeta() {
+        try {
+          return await fetchGzipJson('okpd2_meta.json.gz');
+        } catch (_) {
+          return await fetchJson('okpd2_meta.json');
+        }
+      }
+
+      function setLoading(message) {
+        isLoading = true;
+        els.found.textContent = message || 'Загрузка данных…';
+        els.results.innerHTML = '';
+        els.empty.hidden = true;
+        els.loadMore.hidden = true;
+      }
+
+      function showError(message) {
+        isLoading = false;
+        els.found.textContent = 'Ошибка загрузки';
+        els.results.innerHTML = '';
+        els.loadMore.hidden = true;
+        els.empty.hidden = false;
+        els.empty.innerHTML = `<strong>Не удалось загрузить справочник</strong><br>${escapeHtml(message || 'Проверьте соединение и обновите страницу.')}`;
+      }
+
+      function toggleFloatingButtons() {
+        const y = window.scrollY || document.documentElement.scrollTop || 0;
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+
+        els.toTop.classList.toggle('visible', y > 300);
+        els.toBottom.classList.toggle('visible', maxScroll - y > 300);
+      }
+
+      function bindEvents() {
+        els.q.addEventListener('input', () => {
+          clearTimeout(searchTimer);
+          searchTimer = setTimeout(applySearch, 200);
+        });
+
+        els.leafOnly.addEventListener('change', applySearch);
+
+        els.loadMore.addEventListener('click', () => {
+          const oldVisible = visibleCount;
+          visibleCount = Math.min(filtered.length, visibleCount + PAGE_SIZE);
+          appendItems(filtered.slice(oldVisible, visibleCount));
+          updateLoadMore();
+        });
+
+        els.results.addEventListener('click', async (event) => {
+          const btn = event.target.closest('.code-btn');
+          if (!btn) return;
+
+          const code = btn.dataset.code || '';
+          const copied = await copyText(code);
+
+          if (copied) {
+            showToast(`Код ${code} скопирован`);
+          } else {
+            showToast('Не удалось скопировать код');
+          }
+        });
+
+        els.toTop.addEventListener('click', () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        els.toBottom.addEventListener('click', () => {
+          window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+        });
+
+        window.addEventListener('scroll', toggleFloatingButtons, { passive: true });
+        window.addEventListener('resize', toggleFloatingButtons);
+      }
+
+      async function init() {
+        setLoading('Загрузка данных из okpd2.json.gz…');
+        bindEvents();
+        toggleFloatingButtons();
+
+        try {
+          const [rawData, rawMeta] = await Promise.all([
+            loadData(),
+            loadMeta().catch(() => null)
+          ]);
+
+          meta = rawMeta;
+          allData = Array.isArray(rawData) ? rawData.map(prepareItem) : [];
+          allData.sort(compareItemsByCode);
+
+          isLoading = false;
+          updateStats();
+          applySearch();
+        } catch (error) {
+          console.error(error);
+          showError(error?.message || 'Неизвестная ошибка');
+        }
+      }
+
+      init();
+    })();
+  </script>
 </body>
 </html>
