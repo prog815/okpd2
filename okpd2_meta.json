@@ -1,17 +1,14 @@
 {
-  "source_date": "2026-10-01",
-  "source_date_iso": "2026-10-01T08:14:16",
-  "source_date_display": "1 октября 2026",
-  "generated_at": "2026-10-23T15:49:27",
-  "generated_date": "2026-10-23",
-  "version": "2026-10-01",
-  "source_url": "https://rosstat.gov.ru/storage/mediabank/OKPD2.rar",
-  "source_page": "https://rosstat.gov.ru/classification",
-  "classifier_name": "ОКПД2 (ОК 034-2014)",
+  "classifier": "ОК 034-2014",
+  "classifier_name": "ОКПД2",
   "classifier_full_name": "Общероссийский классификатор продукции по видам экономической деятельности",
-  "records_count": 21102,
-  "leaf_count": 15432,
-  "sections_count": 21,
+  "source_type": "rosstat_docx_archive",
+  "source_page": "https://rosstat.gov.ru/classification",
+  "source_url": "https://rosstat.gov.ru/storage/mediabank/OKPD2.rar",
+  "source_filename": "okpd2_source.rar",
+  "source_sha256": "58814a6c2c89a6909c71f076211c27ba46346b2cfb7a820f31f444358f5f41ee",
+  "source_size_bytes": 1157438,
+  "fetched_at": "2026-10-24T16:56:22+00:00",
   "source_files": [
     {
       "filename": "OKPD2 36-99.docx",
@@ -26,7 +23,81 @@
       "size_kb": 757.0
     }
   ],
-  "data_hash": "a59dd6f936256ef4",
+  "source_date": "2026-10-01",
+  "source_date_iso": "2026-10-01T08:14:16",
+  "source_date_display": "1 октября 2026",
+  "change_display": null,
+  "generated_at": "2026-10-24T16:56:42+00:00",
+  "generated_date": "2026-10-24",
+  "version": "2026-10-01",
+  "provenance": "Росстат · архив OKPD2.rar от 1 октября 2026",
+  "records_count": 21102,
+  "records_count_web": 21081,
+  "leaf_count": 15432,
+  "sections_count": 21,
+  "sections": null,
+  "sections_note": "21 раздел (A–U) есть в источнике, но не экспортируются в веб-JSON",
+  "data_hash": "16984e224ebbb345",
+  "data_hash_full": "16984e224ebbb34503768263d0bec198b61ad00235250e188ffd07f516b2e9d5",
+  "json_size_bytes": 3494326,
   "json_size_kb": 3412.4,
-  "gz_size_kb": 342.1
+  "gz_size_bytes": 349917,
+  "gz_size_kb": 341.7,
+  "record_format": "{c,n,l,v,p}",
+  "record_format_description": "c — код с точками; n — наименование; l — leaf (1/0); v — уровень (число цифр); p — родительский код (опционально)",
+  "primary_sources": [
+    {
+      "name": "Росстат (архив OKPD2.rar)",
+      "url": "https://rosstat.gov.ru/storage/mediabank/OKPD2.rar",
+      "role": "primary"
+    },
+    {
+      "name": "Росстат (страница классификации)",
+      "url": "https://rosstat.gov.ru/classification",
+      "role": "secondary"
+    },
+    {
+      "name": "КонсультантПлюс",
+      "url": "https://www.consultant.ru/document/cons_doc_LAW_163703/",
+      "role": "secondary"
+    },
+    {
+      "name": "Гарант",
+      "url": "https://ivo.garant.ru/#/document/70650730",
+      "role": "secondary"
+    },
+    {
+      "name": "Кодекс",
+      "url": "https://docs.cntd.ru/document/1200110164",
+      "role": "secondary"
+    }
+  ],
+  "publish_allowed": true,
+  "critical_errors": [],
+  "warnings": [],
+  "presence_guard_version": "okpd2_v1",
+  "presence_guard": {
+    "version": "okpd2_v1",
+    "expected_pairs_count": 88,
+    "actual_pairs_count": 88,
+    "missing": [],
+    "extra": [],
+    "status": "PASS"
+  },
+  "parsed_count": 21081,
+  "declared_count": null,
+  "parsed_vs_declared": "N/A: source does not provide declared_count",
+  "parse_counters": {
+    "total_rows": 22429,
+    "name_had_nbsp": 35,
+    "name_had_replacement": 0,
+    "name_had_control": 0,
+    "name_had_whitespace_collapsed": 83
+  },
+  "subject_overrides_applied": [],
+  "subject_morphology_normalized": 0,
+  "aliases_source": null,
+  "source_meta_created": null,
+  "source_meta_modified": null,
+  "source_meta_valid_until": null
 }
