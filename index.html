@@ -7,7 +7,7 @@
   <meta name="description" content="Интерактивный справочник ОКПД2 (ОК 034-2014). Мгновенный поиск по кодам и наименованиям продукции для закупок по 44-ФЗ и 223-ФЗ.">
   <link rel="icon" type="image/svg+xml"
         href="https://prog815.github.io/common-menu/favicon.svg?v=1.0.0">
-  <meta name="theme-color" content="#e8f0f7">
+  <meta name="theme-color" content="#f5f7f5">
   <style>
     :root {
       --bg: #f5f7f5;
@@ -18,19 +18,13 @@
       --accent: #4e9450;
       --accent-dark: #3d7a3f;
       --accent-soft: #e8f3e8;
-      --warning: #fff4d6;
       --shadow: 0 10px 30px rgba(20, 35, 25, 0.08);
       --radius: 16px;
       --radius-sm: 12px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
@@ -40,10 +34,7 @@
       line-height: 1.45;
     }
 
-    common-projects-menu {
-      display: block;
-      width: 100%;
-    }
+    common-projects-menu { display: block; width: 100%; }
 
     .page {
       max-width: 1160px;
@@ -51,16 +42,12 @@
       padding: 16px 16px 110px;
     }
 
-    .hero {
-      padding: 18px 0 8px;
-    }
-
+    .hero { padding: 18px 0 8px; }
     .hero h1 {
       margin: 0 0 8px;
       font-size: clamp(1.5rem, 3vw, 2.2rem);
       line-height: 1.15;
     }
-
     .lead {
       margin: 0;
       color: var(--muted);
@@ -88,10 +75,15 @@
       align-items: center;
     }
 
-    #q {
+    .search-wrap {
+      position: relative;
       flex: 1 1 280px;
       min-width: 0;
-      padding: 13px 14px;
+    }
+
+    #q {
+      width: 100%;
+      padding: 13px 40px 13px 14px;
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       font-size: 1rem;
@@ -99,10 +91,37 @@
       background: #fff;
       transition: border-color .15s ease, box-shadow .15s ease;
     }
-
     #q:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 4px rgba(78, 148, 80, 0.12);
+    }
+
+    .clear-q {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: none;
+      border-radius: 50%;
+      color: #888;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      line-height: 1;
+    }
+    .clear-q:hover { background: #eef3ee; color: var(--text); }
+
+    .filters-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 10px;
     }
 
     .leaf-filter {
@@ -118,7 +137,6 @@
       user-select: none;
       white-space: nowrap;
     }
-
     .leaf-filter input {
       width: 16px;
       height: 16px;
@@ -151,17 +169,18 @@
       border-radius: var(--radius);
       padding: 14px;
       box-shadow: 0 4px 16px rgba(20, 35, 25, 0.04);
-      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+      transition: transform .12s ease, box-shadow .12s ease, border-color .3s ease, background .3s ease;
     }
-
     .card:hover {
       transform: translateY(-1px);
       box-shadow: 0 8px 24px rgba(20, 35, 25, 0.08);
       border-color: #c9d8c9;
     }
-
-    .card.leaf-card {
-      border-left: 4px solid var(--accent);
+    .card.leaf-card { border-left: 4px solid var(--accent); }
+    .card.highlight {
+      background: #edf6ed;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(78, 148, 80, 0.25);
     }
 
     .card-top {
@@ -190,15 +209,8 @@
       overflow-wrap: normal;
       word-break: keep-all;
     }
-
-    .code-btn:hover {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-    }
-
-    .code-btn:active {
-      transform: scale(0.98);
-    }
+    .code-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+    .code-btn:active { transform: scale(0.98); }
 
     .badges {
       display: flex;
@@ -218,17 +230,17 @@
       border: 1px solid transparent;
       white-space: nowrap;
     }
-
-    .badge.level {
-      background: #eef3ff;
-      color: #31508f;
-      border-color: #d8e3ff;
-    }
-
+    .badge.clickable { cursor: pointer; transition: filter .15s ease; }
+    .badge.clickable:hover { filter: brightness(0.95); }
     .badge.leaf {
       background: var(--accent-soft);
       color: var(--accent-dark);
       border-color: #c8e3c8;
+    }
+    .badge.group {
+      background: #f2f4f2;
+      color: #6b7a6e;
+      border-color: #e2e8e2;
     }
 
     .name {
@@ -243,6 +255,30 @@
       padding: 0 2px;
       border-radius: 4px;
     }
+
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-small {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #f8fbf8;
+      color: var(--text);
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease;
+      font-family: inherit;
+    }
+    .btn-small:hover { background: var(--accent-soft); border-color: var(--accent); }
 
     .empty {
       margin-top: 10px;
@@ -266,15 +302,8 @@
       cursor: pointer;
       transition: background .15s ease, border-color .15s ease, transform .1s ease;
     }
-
-    .btn:hover {
-      background: #f3f8f3;
-      border-color: #bfd3bf;
-    }
-
-    .btn:active {
-      transform: scale(0.98);
-    }
+    .btn:hover { background: #f3f8f3; border-color: #bfd3bf; }
+    .btn:active { transform: scale(0.98); }
 
     .more-wrap {
       display: flex;
@@ -289,50 +318,49 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
+      font-size: 0.95rem;
     }
 
-    .stats {
-      color: var(--text);
-      font-size: 0.98rem;
+    .stats { color: var(--text); font-size: 0.98rem; }
+    .stats b { color: var(--accent-dark); }
+
+    .date-line {
+      margin-top: 6px;
+      color: var(--muted);
     }
 
-    .stats b {
-      color: var(--accent-dark);
-    }
-
-    .links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px 14px;
+    .sources {
       margin-top: 12px;
       padding-top: 12px;
       border-top: 1px solid var(--border);
     }
 
-    .links a {
+    .sources-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      align-items: baseline;
+    }
+
+    .sources-label {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .sources-row a {
       color: var(--accent-dark);
       text-decoration: none;
       font-weight: 600;
       border-bottom: 1px solid transparent;
     }
+    .sources-row a:hover { border-bottom-color: var(--accent); }
 
-    .links a:hover {
-      border-bottom-color: var(--accent);
-    }
-
-    .copy-note {
+    .disclaimer {
       margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
       color: var(--muted);
-      font-size: 0.92rem;
-    }
-
-    .copy-note a {
-      color: var(--accent-dark);
-      text-decoration: none;
-    }
-
-    .copy-note a:hover {
-      text-decoration: underline;
+      font-size: 0.88rem;
     }
 
     .fab-stack {
@@ -365,16 +393,8 @@
       transition: opacity .18s ease, transform .18s ease, background .15s ease;
       backdrop-filter: blur(8px);
     }
-
-    .fab.visible {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateY(0);
-    }
-
-    .fab:hover {
-      background: var(--accent-soft);
-    }
+    .fab.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    .fab:hover { background: var(--accent-soft); }
 
     .toast {
       position: fixed;
@@ -394,51 +414,34 @@
       max-width: calc(100vw - 32px);
       text-align: center;
     }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-    .toast.show {
-      opacity: 1;
-      transform: translate(-50%, 0);
-    }
-
-    [hidden] {
-      display: none !important;
-    }
+    [hidden] { display: none !important; }
 
     @media (max-width: 640px) {
-      .page {
-        padding: 12px 12px 100px;
-      }
+      .page { padding: 12px 12px 100px; }
+      .search-panel { padding: 12px; }
 
-      .search-panel {
-        padding: 12px;
-      }
+      .search-row { flex-direction: column; align-items: stretch; }
+      .search-wrap { flex: 1 1 auto; }
 
-      .card-top {
-        flex-direction: column;
-        align-items: stretch;
-      }
+      .filters-row { flex-direction: column; align-items: stretch; }
+      .leaf-filter { width: 100%; justify-content: flex-start; }
 
-      .code-btn {
-        align-self: flex-start;
-      }
+      .card-top { flex-direction: column; align-items: stretch; }
+      .code-btn { align-self: flex-start; }
+      .badges { justify-content: flex-start; }
 
-      .badges {
-        justify-content: flex-start;
-      }
-
-      .fab-stack {
-        right: 12px;
-        bottom: 12px;
-      }
+      .fab-stack { right: 12px; bottom: 12px; }
     }
   </style>
 </head>
 <body>
-  
 
-  <!-- Общее меню экосистемы — в самом верху страницы -->
-  <script src="https://prog815.github.io/common-menu/menu.js"></script>
+  <script src="https://prog815.github.io/common-menu/menu.js?v=2.2.0"></script>
   <common-projects-menu></common-projects-menu>
+
+  <script src="https://prog815.github.io/common-menu/share.js?v=1.0.0"></script>
 
   <div class="page" id="top">
     <header class="hero">
@@ -451,14 +454,21 @@
 
     <section class="search-panel" aria-label="Поиск по справочнику ОКПД2">
       <div class="search-row">
-        <input
-          id="q"
-          type="search"
-          autocomplete="off"
-          spellcheck="false"
-          placeholder="Введите код или название, например: 01.11 или зерно пшеницы"
-          aria-label="Поисковый запрос"
-        >
+        <div class="search-wrap">
+          <input
+            id="q"
+            type="text"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="Введите код или название, например: 01.11 или зерно пшеницы"
+            aria-label="Поисковый запрос"
+            title="Поиск по коду (с начала кода) или по названию"
+          >
+          <button id="clearQ" class="clear-q" type="button" title="Очистить поиск" aria-label="Очистить поиск" hidden>✕</button>
+        </div>
+      </div>
+
+      <div class="filters-row">
         <label class="leaf-filter" title="Показывать только коды нижнего уровня, пригодные для закупок">
           <input type="checkbox" id="leafOnly">
           <span>Только коды нижнего уровня</span>
@@ -481,24 +491,20 @@
       </div>
 
       <div class="more-wrap">
-        <button id="loadMore" class="btn" type="button" hidden>Показать ещё</button>
+        <button id="loadMore" class="btn" type="button" title="Показать следующие записи" hidden>Показать ещё</button>
       </div>
     </main>
 
     <footer class="footer">
-      <div id="stats" class="stats">
-        Загрузка статистики…
+      <div id="stats" class="stats">Загрузка статистики…</div>
+      <div id="dateLine" class="date-line"></div>
+
+      <div class="sources">
+        <div class="sources-row" id="sourcesSecondary"></div>
       </div>
 
-      <div class="links">
-        <a href="https://rosstat.gov.ru/classification" target="_blank" rel="noopener noreferrer">Росстат</a>
-        <a href="https://www.consultant.ru/document/cons_doc_LAW_163703/" target="_blank" rel="noopener noreferrer">КонсультантПлюс</a>
-        <a href="https://ivo.garant.ru/#/document/70650730" target="_blank" rel="noopener noreferrer">Гарант</a>
-      </div>
-
-      <div class="copy-note">
-        Проект с открытым исходным кодом на
-        <a href="https://github.com/prog815/okpd2" target="_blank" rel="noopener noreferrer">GitHub</a>.
+      <div class="disclaimer">
+        Справочник носит справочный характер, не заменяет первоисточник и не является официальным реестром.
       </div>
     </footer>
   </div>
@@ -516,14 +522,24 @@
 
       const PAGE_SIZE = 20;
 
+      const DEFAULT_SOURCES = [
+        { name: 'Росстат (страница классификации)', url: 'https://rosstat.gov.ru/classification', role: 'secondary' },
+        { name: 'КонсультантПлюс', url: 'https://www.consultant.ru/document/cons_doc_LAW_163703/', role: 'secondary' },
+        { name: 'Гарант', url: 'https://ivo.garant.ru/#/document/70650730', role: 'secondary' },
+        { name: 'Кодекс', url: 'https://docs.cntd.ru/document/1200110164', role: 'secondary' }
+      ];
+
       const els = {
         q: document.getElementById('q'),
+        clearQ: document.getElementById('clearQ'),
         leafOnly: document.getElementById('leafOnly'),
         found: document.getElementById('found'),
         results: document.getElementById('results'),
         empty: document.getElementById('empty'),
         loadMore: document.getElementById('loadMore'),
         stats: document.getElementById('stats'),
+        dateLine: document.getElementById('dateLine'),
+        sourcesSecondary: document.getElementById('sourcesSecondary'),
         toTop: document.getElementById('toTop'),
         toBottom: document.getElementById('toBottom'),
         toast: document.getElementById('toast')
@@ -536,6 +552,9 @@
       let meta = null;
       let toastTimer = null;
       let searchTimer = null;
+      let activeDeepLinkCode = null;
+
+      // ---------- утилиты ----------
 
       function plural(n, forms) {
         const abs = Math.abs(n) % 100;
@@ -589,51 +608,23 @@
       }
 
       function isGroupPrefix(prefixGroups, codeGroups) {
-        if (!prefixGroups.length || prefixGroups.length > codeGroups.length) {
-          return false;
-        }
-
+        if (!prefixGroups.length || prefixGroups.length > codeGroups.length) return false;
         for (let i = 0; i < prefixGroups.length; i++) {
-          if (prefixGroups[i] !== codeGroups[i]) {
-            return false;
-          }
+          if (prefixGroups[i] !== codeGroups[i]) return false;
         }
-
         return true;
-      }
-
-      function levelName(v) {
-        const map = {
-          2: 'класс',
-          3: 'подкласс',
-          4: 'группа',
-          5: 'подгруппа',
-          6: 'вид',
-          7: 'детализация',
-          8: 'детализация',
-          9: 'категория'
-        };
-        return map[v] || `уровень ${v}`;
       }
 
       function compareCodeParts(a, b) {
         const maxLen = Math.max(a.length, b.length);
-
         for (let i = 0; i < maxLen; i++) {
-          const x = a[i];
-          const y = b[i];
-
+          const x = a[i], y = b[i];
           if (x === y) continue;
           if (x === undefined) return -1;
           if (y === undefined) return 1;
-
-          if (typeof x === 'number' && typeof y === 'number') {
-            return x - y;
-          }
-
+          if (typeof x === 'number' && typeof y === 'number') return x - y;
           return String(x).localeCompare(String(y), 'ru');
         }
-
         return 0;
       }
 
@@ -650,69 +641,47 @@
 
         return {
           ...item,
-          c: code,
-          n: name,
-          v: level,
-          l: leaf,
+          c: code, n: name, v: level, l: leaf,
           _n: normalize(name),
           _cd: codeDigits,
           _text: `${code} ${normalize(name)}`,
-          _parts: code.split('.').map(part => (/^\d+$/.test(part) ? Number(part) : part)),
-          _groups: code.split('.').map(part => Number(part) || 0)
+          _parts: code.split('.').map(p => (/^\d+$/.test(p) ? Number(p) : p)),
+          _groups: code.split('.').map(p => Number(p) || 0)
         };
       }
 
+      // ---------- подсветка ----------
+
       function buildHighlightPatterns(terms) {
         const patterns = new Set();
-
         for (const term of terms) {
           if (!term) continue;
-
-          const add = (value) => {
-            if (value) patterns.add(escapeRegExp(value));
-          };
-
+          const add = v => { if (v) patterns.add(escapeRegExp(v)); };
           add(term);
-
-          if (term.includes('е')) {
-            add(term.replace(/е/g, 'ё'));
-          }
-
-          if (term.includes('ё')) {
-            add(term.replace(/ё/g, 'е'));
-          }
+          if (term.includes('е')) add(term.replace(/е/g, 'ё'));
+          if (term.includes('ё')) add(term.replace(/ё/g, 'е'));
         }
-
         return Array.from(patterns).sort((a, b) => b.length - a.length);
       }
 
       function highlight(text, terms) {
         const html = escapeHtml(text);
         const patterns = buildHighlightPatterns(terms || []);
-
         if (!patterns.length) return html;
-
         const re = new RegExp(`(${patterns.join('|')})`, 'gi');
         return html.replace(re, '<mark>$1</mark>');
       }
 
       function getCodeHighlightTerms(item, terms) {
         const result = [];
-
         for (const term of terms) {
           if (!isNumericTerm(term)) continue;
-
-          if (item.c.startsWith(term)) {
-            result.push(term);
-            continue;
-          }
-
+          if (item.c.startsWith(term)) { result.push(term); continue; }
           const termGroups = parseNumericGroups(term);
           if (isGroupPrefix(termGroups, item._groups)) {
             result.push(item._groups.slice(0, termGroups.length).join('.'));
           }
         }
-
         return result;
       }
 
@@ -721,35 +690,39 @@
         return q ? q.split(' ').filter(Boolean) : [];
       }
 
+      // ---------- фильтрация ----------
+
       function filterData() {
+        if (activeDeepLinkCode) {
+          const match = allData.find(item => item.c === activeDeepLinkCode);
+          filtered = match ? [match] : [];
+          return;
+        }
+
         const terms = getCurrentTerms();
         const leafOnly = els.leafOnly.checked;
 
+        let pool = allData;
+        if (leafOnly) pool = pool.filter(item => item.l === 1);
+
         if (!terms.length) {
-          filtered = leafOnly ? allData.filter(item => item.l === 1) : allData.slice();
+          filtered = pool.slice();
           return;
         }
 
         const result = [];
-
-        for (const item of allData) {
-          if (leafOnly && item.l !== 1) continue;
-
+        for (const item of pool) {
           let ok = true;
           let score = 0;
 
           for (const term of terms) {
             let matched = false;
-            const numeric = isNumericTerm(term);
-
-            if (numeric) {
+            if (isNumericTerm(term)) {
               const digitsTerm = onlyDigits(term);
-
               if (digitsTerm && item._cd.startsWith(digitsTerm)) {
                 matched = true;
                 score += 1000 - Math.min(900, Math.abs(item._cd.length - digitsTerm.length) * 20);
               }
-
               if (!matched) {
                 const termGroups = parseNumericGroups(term);
                 if (isGroupPrefix(termGroups, item._groups)) {
@@ -758,23 +731,14 @@
                 }
               }
             } else {
-              if (item._text.includes(term)) {
-                matched = true;
-                score += 70;
-              }
-
+              if (item._text.includes(term)) { matched = true; score += 70; }
               if (!matched && item._n.includes(term)) {
                 matched = true;
                 score += item._n.startsWith(term) ? 120 : 55;
               }
             }
-
-            if (!matched) {
-              ok = false;
-              break;
-            }
+            if (!matched) { ok = false; break; }
           }
-
           if (ok) {
             if (item.l === 1) score += 15;
             result.push({ item, score });
@@ -786,12 +750,41 @@
           return compareItemsByCode(a.item, b.item);
         });
 
-        filtered = result.map(entry => entry.item);
+        filtered = result.map(e => e.item);
+      }
+
+      // ---------- URL / ?code= ----------
+
+      function getCodeFromUrl() {
+        const params = new URLSearchParams(location.search);
+        const code = params.get('code');
+        return code ? code.trim() : null;
+      }
+
+      function syncCodeToUrl(code) {
+        if (!code) {
+          history.replaceState(null, '', location.pathname + location.hash);
+          return;
+        }
+        history.replaceState(null, '', location.pathname + '?code=' + encodeURIComponent(code) + location.hash);
+      }
+
+      function clearCodeFromUrl() {
+        if (location.search.includes('code=')) {
+          history.replaceState(null, '', location.pathname + location.hash);
+        }
+      }
+
+      // ---------- рендер карточки ----------
+
+      function buildRowText(item) {
+        return `${item.c}; ${item.n}`;
       }
 
       function createCard(item, terms) {
         const card = document.createElement('article');
         card.className = `card${item.l === 1 ? ' leaf-card' : ''}`;
+        card.dataset.code = item.c;
 
         const top = document.createElement('div');
         top.className = 'card-top';
@@ -806,22 +799,28 @@
         const codeHighlightTerms = numericTerms.length
           ? getCodeHighlightTerms(item, numericTerms)
           : terms;
-
         codeBtn.innerHTML = highlight(item.c, codeHighlightTerms);
 
         const badges = document.createElement('div');
         badges.className = 'badges';
 
-        const levelBadge = document.createElement('span');
-        levelBadge.className = 'badge level';
-        levelBadge.textContent = levelName(item.v);
-        badges.appendChild(levelBadge);
-
         if (item.l === 1) {
           const leafBadge = document.createElement('span');
-          leafBadge.className = 'badge leaf';
+          leafBadge.className = 'badge leaf clickable';
           leafBadge.textContent = 'нижний уровень';
+          leafBadge.title = 'Клик — показать только коды нижнего уровня';
+          leafBadge.addEventListener('click', () => {
+            els.leafOnly.checked = true;
+            applySearch();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
           badges.appendChild(leafBadge);
+        } else {
+          const groupBadge = document.createElement('span');
+          groupBadge.className = 'badge group';
+          groupBadge.textContent = 'группировка';
+          groupBadge.title = 'Промежуточная группировка классификатора';
+          badges.appendChild(groupBadge);
         }
 
         top.append(codeBtn, badges);
@@ -830,21 +829,62 @@
         name.className = 'name';
         name.innerHTML = highlight(item.n, terms);
 
-        card.append(top, name);
+        const actions = document.createElement('div');
+        actions.className = 'card-actions';
+
+        const rowBtn = document.createElement('button');
+        rowBtn.type = 'button';
+        rowBtn.className = 'btn-small';
+        rowBtn.title = 'Скопировать строку: код; название';
+        rowBtn.innerHTML = '📋 строка';
+        rowBtn.addEventListener('click', async () => {
+          const ok = await copyText(buildRowText(item));
+          showToast(ok ? 'Строка скопирована' : 'Не удалось скопировать строку');
+        });
+        actions.appendChild(rowBtn);
+
+        const shareSlot = document.createElement('span');
+        shareSlot.className = 'share-slot';
+        shareSlot.dataset.code = item.c;
+        shareSlot.dataset.name = item.n;
+        shareSlot.dataset.row = buildRowText(item);
+        actions.appendChild(shareSlot);
+
+        card.append(top, name, actions);
         return card;
+      }
+
+      function bindShareButtons() {
+        const slots = els.results.querySelectorAll('.share-slot');
+        slots.forEach(slot => {
+          const code = slot.dataset.code || '';
+          const name = slot.dataset.name || '';
+          const rowText = slot.dataset.row || '';
+
+          const wrap = document.createElement('klassik-share');
+          wrap.setAttribute('catalog', 'okpd2');
+          wrap.setAttribute('title', `ОКПД2: ${code} — ${name}`);
+          wrap.setAttribute('text', rowText);
+          wrap.setAttribute('url', location.origin + location.pathname + '?code=' + encodeURIComponent(code));
+
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'btn-small';
+          btn.title = 'Поделиться карточкой';
+          btn.innerHTML = '📤 Поделиться';
+          wrap.appendChild(btn);
+
+          slot.parentNode.replaceChild(wrap, slot);
+        });
       }
 
       function appendItems(items) {
         if (!items.length) return;
-
         const terms = getCurrentTerms();
         const frag = document.createDocumentFragment();
-
-        for (const item of items) {
-          frag.appendChild(createCard(item, terms));
-        }
-
+        for (const item of items) frag.appendChild(createCard(item, terms));
         els.results.appendChild(frag);
+        bindShareButtons();
       }
 
       function updateLoadMore() {
@@ -856,12 +896,10 @@
           els.loadMore.hidden = true;
           return;
         }
-
         const next = Math.min(PAGE_SIZE, remaining);
-
         els.loadMore.hidden = false;
-        els.loadMore.textContent =
-          `Показать ещё ${formatNumber(next)} — уже показано ${formatNumber(shown)} из ${formatNumber(total)}`;
+        els.loadMore.textContent = `Показать ещё +${next} (показано ${formatNumber(shown)} из ${formatNumber(total)})`;
+        els.loadMore.title = `Показать ещё ${next} записей`;
       }
 
       function updateStatus() {
@@ -869,22 +907,26 @@
           els.found.textContent = 'Загрузка данных…';
           return;
         }
-
         const n = filtered.length;
-        els.found.textContent = `Найдено: ${formatNumber(n)} ${plural(n, ['результат', 'результата', 'результатов'])}`;
+        const m = Math.min(visibleCount, n);
+        els.found.textContent = `Найдено: ${formatNumber(n)} · Показано: ${formatNumber(m)}`;
       }
 
       function renderAll() {
         if (isLoading) return;
-
         els.results.innerHTML = '';
 
         if (!filtered.length) {
           els.empty.hidden = false;
-          els.empty.innerHTML = els.q.value.trim()
-            ? '<strong>Ничего не найдено</strong><br>Попробуйте другой запрос или отключите фильтр «Только коды нижнего уровня».'
-            : '<strong>Нет данных</strong><br>Справочник не содержит записей.';
+          if (activeDeepLinkCode) {
+            els.empty.innerHTML = `<strong>Код ${escapeHtml(activeDeepLinkCode)} не найден</strong><br>Проверьте код или начните вводить новый запрос.`;
+          } else if (els.q.value.trim()) {
+            els.empty.innerHTML = '<strong>Ничего не найдено</strong><br>Попробуйте другой запрос или снимите фильтры.';
+          } else {
+            els.empty.innerHTML = '<strong>Нет данных</strong><br>Справочник не содержит записей по текущим фильтрам.';
+          }
           els.loadMore.hidden = true;
+          visibleCount = 0;
           return;
         }
 
@@ -900,25 +942,84 @@
         updateStatus();
       }
 
+      function highlightCode(code) {
+        requestAnimationFrame(() => {
+          const card = els.results.querySelector(`.card[data-code="${CSS.escape(code)}"]`);
+          if (!card) return;
+          card.classList.add('highlight');
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => card.classList.remove('highlight'), 1800);
+        });
+      }
+
+      // ---------- футер / даты ----------
+
+      function mergeSources(metaSources) {
+        const byUrl = new Map(DEFAULT_SOURCES.map(s => [s.url, s]));
+        if (Array.isArray(metaSources)) {
+          for (const s of metaSources) {
+            if (s && s.url && s.role !== 'primary' && !byUrl.has(s.url)) {
+              byUrl.set(s.url, s);
+            }
+          }
+        }
+        return Array.from(byUrl.values());
+      }
+
+      function linkFor(s) {
+        const a = document.createElement('a');
+        a.href = s.url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = s.name;
+        a.title = s.name;
+        return a;
+      }
+
+      function renderFooter() {
+        const sources = mergeSources(meta?.primary_sources);
+
+        els.sourcesSecondary.innerHTML = '<span class="sources-label">Первоисточники и текстовые редакции для сверки:</span>';
+        for (const s of sources) els.sourcesSecondary.appendChild(linkFor(s));
+
+        const aboutLink = document.createElement('a');
+        aboutLink.href = 'https://github.com/prog815/okpd2';
+        aboutLink.target = '_blank';
+        aboutLink.rel = 'noopener noreferrer';
+        aboutLink.textContent = 'О справочнике';
+        aboutLink.title = 'О справочнике (репозиторий проекта)';
+        els.sourcesSecondary.appendChild(aboutLink);
+      }
+
+      function renderDateLine() {
+        if (!meta) {
+          els.dateLine.textContent = 'Дата актуальности: не определена';
+          return;
+        }
+        if (meta.change_display) {
+          els.dateLine.textContent = meta.change_display;
+        } else if (meta.source_date_display) {
+          els.dateLine.textContent = 'С изменениями от ' + meta.source_date_display;
+        } else {
+          els.dateLine.textContent = 'Дата актуальности: не определена';
+        }
+      }
+
       function updateStats() {
         const total = allData.length;
         const leaf = allData.reduce((acc, item) => acc + (item.l === 1 ? 1 : 0), 0);
-        const date = meta?.source_date_display || meta?.source_date || '—';
-
         els.stats.innerHTML =
           `В справочнике <b>${formatNumber(total)}</b> ${plural(total, ['запись', 'записи', 'записей'])}, ` +
-          `из них <b>${formatNumber(leaf)}</b> ${plural(leaf, ['код', 'кода', 'кодов'])} нижнего уровня. ` +
-          `Дата актуальности: <b>${escapeHtml(date)}</b>.`;
+          `из них <b>${formatNumber(leaf)}</b> ${plural(leaf, ['код', 'кода', 'кодов'])} нижнего уровня.`;
       }
+
+      // ---------- служебное ----------
 
       function showToast(message) {
         clearTimeout(toastTimer);
         els.toast.textContent = message;
         els.toast.classList.add('show');
-
-        toastTimer = setTimeout(() => {
-          els.toast.classList.remove('show');
-        }, 1800);
+        toastTimer = setTimeout(() => els.toast.classList.remove('show'), 1800);
       }
 
       async function copyText(text) {
@@ -927,20 +1028,17 @@
             await navigator.clipboard.writeText(text);
             return true;
           }
-        } catch (_) {
-          // fallback below
-        }
-
+        } catch (_) {}
         try {
-          const textarea = document.createElement('textarea');
-          textarea.value = text;
-          textarea.setAttribute('readonly', '');
-          textarea.style.position = 'fixed';
-          textarea.style.left = '-9999px';
-          document.body.appendChild(textarea);
-          textarea.select();
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
           const ok = document.execCommand('copy');
-          document.body.removeChild(textarea);
+          document.body.removeChild(ta);
           return ok;
         } catch (_) {
           return false;
@@ -948,61 +1046,42 @@
       }
 
       async function fetchJson(url) {
-        const response = await fetch(url, { cache: 'no-store' });
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status} for ${url}`);
-        }
-        return response.json();
+        const r = await fetch(url, { cache: 'no-store' });
+        if (!r.ok) throw new Error(`HTTP ${r.status} for ${url}`);
+        return r.json();
       }
 
       async function fetchGzipJson(url) {
-        const response = await fetch(url, { cache: 'no-store' });
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status} for ${url}`);
-        }
-
-        if (typeof DecompressionStream === 'undefined' || !response.body) {
+        const r = await fetch(url, { cache: 'no-store' });
+        if (!r.ok) throw new Error(`HTTP ${r.status} for ${url}`);
+        if (typeof DecompressionStream === 'undefined' || !r.body) {
           throw new Error('DecompressionStream is not available');
         }
-
-        const stream = response.body.pipeThrough(new DecompressionStream('gzip'));
+        const stream = r.body.pipeThrough(new DecompressionStream('gzip'));
         const reader = stream.getReader();
         const chunks = [];
-        let totalLength = 0;
-
+        let len = 0;
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
           chunks.push(value);
-          totalLength += value.length;
+          len += value.length;
         }
-
-        const buffer = new Uint8Array(totalLength);
-        let offset = 0;
-
-        for (const chunk of chunks) {
-          buffer.set(chunk, offset);
-          offset += chunk.length;
-        }
-
-        const text = new TextDecoder('utf-8').decode(buffer);
+        const buf = new Uint8Array(len);
+        let off = 0;
+        for (const c of chunks) { buf.set(c, off); off += c.length; }
+        const text = new TextDecoder('utf-8').decode(buf);
         return JSON.parse(text);
       }
 
       async function loadData() {
-        try {
-          return await fetchGzipJson('okpd2.json.gz');
-        } catch (_) {
-          return await fetchJson('okpd2.json');
-        }
+        try { return await fetchGzipJson('okpd2.json.gz'); }
+        catch (_) { return await fetchJson('okpd2.json'); }
       }
 
       async function loadMeta() {
-        try {
-          return await fetchGzipJson('okpd2_meta.json.gz');
-        } catch (_) {
-          return await fetchJson('okpd2_meta.json');
-        }
+        try { return await fetchGzipJson('okpd2_meta.json.gz'); }
+        catch (_) { return await fetchJson('okpd2_meta.json'); }
       }
 
       function setLoading(message) {
@@ -1025,33 +1104,54 @@
       function toggleFloatingButtons() {
         const y = window.scrollY || document.documentElement.scrollTop || 0;
         const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-
         els.toTop.classList.toggle('visible', y > 300);
         els.toBottom.classList.toggle('visible', maxScroll - y > 300);
       }
 
+      function updateClearButton() {
+        els.clearQ.hidden = !els.q.value;
+      }
+
+      // ---------- события ----------
+
       function bindEvents() {
         els.q.addEventListener('input', () => {
+          activeDeepLinkCode = null;
+          clearCodeFromUrl();
+          updateClearButton();
           clearTimeout(searchTimer);
           searchTimer = setTimeout(applySearch, 200);
         });
 
-        els.leafOnly.addEventListener('change', applySearch);
+        els.clearQ.addEventListener('click', () => {
+          els.q.value = '';
+          activeDeepLinkCode = null;
+          clearCodeFromUrl();
+          updateClearButton();
+          els.q.focus();
+          applySearch();
+        });
+
+        els.leafOnly.addEventListener('change', () => {
+          activeDeepLinkCode = null;
+          clearCodeFromUrl();
+          applySearch();
+        });
 
         els.loadMore.addEventListener('click', () => {
           const oldVisible = visibleCount;
           visibleCount = Math.min(filtered.length, visibleCount + PAGE_SIZE);
           appendItems(filtered.slice(oldVisible, visibleCount));
           updateLoadMore();
+          updateStatus();
         });
 
         els.results.addEventListener('click', async (event) => {
           const btn = event.target.closest('.code-btn');
           if (!btn) return;
-
           const code = btn.dataset.code || '';
           const copied = await copyText(code);
-
+          syncCodeToUrl(code);
           if (copied) {
             showToast(`Код ${code} скопирован`);
           } else {
@@ -1059,22 +1159,45 @@
           }
         });
 
-        els.toTop.addEventListener('click', () => {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        els.toBottom.addEventListener('click', () => {
-          window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
-        });
+        els.toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        els.toBottom.addEventListener('click', () => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' }));
 
         window.addEventListener('scroll', toggleFloatingButtons, { passive: true });
         window.addEventListener('resize', toggleFloatingButtons);
+
+        window.addEventListener('popstate', () => {
+          const code = getCodeFromUrl();
+          if (code) {
+            activeDeepLinkCode = code;
+            els.q.value = code;
+            els.leafOnly.checked = false;
+            updateClearButton();
+            applySearch();
+            highlightCode(code);
+          } else {
+            activeDeepLinkCode = null;
+            els.q.value = '';
+            updateClearButton();
+            applySearch();
+          }
+        });
       }
+
+      // ---------- init ----------
 
       async function init() {
         setLoading('Загрузка данных из okpd2.json.gz…');
         bindEvents();
         toggleFloatingButtons();
+        updateClearButton();
+
+        const initialCode = getCodeFromUrl();
+        if (initialCode) {
+          activeDeepLinkCode = initialCode;
+          els.q.value = initialCode;
+          els.leafOnly.checked = false;
+          updateClearButton();
+        }
 
         try {
           const [rawData, rawMeta] = await Promise.all([
@@ -1088,7 +1211,13 @@
 
           isLoading = false;
           updateStats();
+          renderFooter();
+          renderDateLine();
           applySearch();
+
+          if (activeDeepLinkCode) {
+            highlightCode(activeDeepLinkCode);
+          }
         } catch (error) {
           console.error(error);
           showError(error?.message || 'Неизвестная ошибка');
