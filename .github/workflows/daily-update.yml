@@ -10,12 +10,14 @@ permissions:
 
 jobs:
   sync-data:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Install Kaggle CLI
         run: pip install --quiet kaggle
@@ -35,10 +37,24 @@ jobs:
           echo "=== Хвост лога тетрадки ==="
           tail -40 ./output/*.log 2>/dev/null || true
 
-      - name: Copy web files to repo root
+      - name: Copy web files to repo root (auto-detect SRC)
         id: copy
         run: |
-          SRC=./output/okpd2_data/web
+          SRC=""
+          for candidate in ./output/okpd2_data/web ./output/web; do
+            if [ -f "$candidate/okpd2.json" ]; then
+              SRC="$candidate"
+              break
+            fi
+          done
+
+          if [ -z "$SRC" ]; then
+            echo "::warning::Не найден каталог с okpd2.json ни в ./output/okpd2_data/web, ни в ./output/web"
+            echo "has_files=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Найден SRC=$SRC"
           OK=1
           for f in okpd2.json okpd2.json.gz okpd2_meta.json okpd2_meta.json.gz; do
             if [ ! -f "$SRC/$f" ]; then
@@ -46,27 +62,55 @@ jobs:
               OK=0
             fi
           done
-          
+
           if [ "$OK" = 0 ]; then
             echo "has_files=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          
+
           cp -v "$SRC/okpd2.json" "$SRC/okpd2.json.gz" \
                 "$SRC/okpd2_meta.json" "$SRC/okpd2_meta.json.gz" .
           echo "has_files=true" >> "$GITHUB_OUTPUT"
 
-      - name: Commit and push changes
+      - name: Determine SOURCE_DATE (single-line python -c)
         if: steps.copy.outputs.has_files == 'true'
+        id: date
+        run: |
+          SOURCE_DATE=$(python -c "import json;m=json.load(open('okpd2_meta.json',encoding='utf-8'));v=(m.get('source_date') or m.get('effective_date') or m.get('prepared_date') or m.get('generated_at') or '?');print(v[:10] if isinstance(v,str) and len(v)>=10 else v)")
+          echo "SOURCE_DATE=$SOURCE_DATE" >> "$GITHUB_ENV"
+          echo "source_date=$SOURCE_DATE" >> "$GITHUB_OUTPUT"
+          echo "SOURCE_DATE=$SOURCE_DATE"
+
+      - name: Check metadata (publish_allowed + critical_errors)
+        if: steps.copy.outputs.has_files == 'true'
+        id: meta
+        run: |
+          python -c "
+          import json, sys
+          m = json.load(open('okpd2_meta.json', encoding='utf-8'))
+          critical = m.get('critical_errors') or []
+          publish = m.get('publish_allowed', False)
+          if critical:
+              print('::error::critical_errors не пусты: ' + str([e.get('check') for e in critical]))
+              sys.exit(1)
+          if not publish:
+              print('::error::publish_allowed=false')
+              sys.exit(1)
+          print('✓ Мета OK: publish_allowed=true, critical_errors=0')
+          "
+          echo "meta_ok=true" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push changes
+        if: steps.copy.outputs.has_files == 'true' && steps.meta.outputs.meta_ok == 'true'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add okpd2.json okpd2.json.gz okpd2_meta.json okpd2_meta.json.gz
-          
+
           if git diff --cached --quiet; then
             echo "Изменений в данных нет."
           else
-            git commit -m "chore(data): auto-update OKPD2 $(date -u +%F)"
+            git commit -m "chore(data): auto-update OKPD2 ${SOURCE_DATE:-$(date -u +%F)}"
             git push
             echo "✓ Данные обновлены и запушены"
           fi
